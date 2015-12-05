@@ -10,10 +10,38 @@ function (doc) {
 
       case 'Contact':
       case 'Lead': {
+        // ignore bad data: N/A, ?, and ???
+
+        var notEmpty = function (field) {
+          if (!field) {
+            return false;
+          }
+
+          var normalizedField = field.trim().toLowerCase();
+          switch (normalizedField) {
+            case 'n/a':
+            case '?':
+            case '??':
+            case '???':
+            case '[not provided]':
+            case '-unknown': {
+              return false;
+            }
+          }
+
+          return true;
+        };
+
+
         var fullName = doc.FirstName + ' ' + doc.LastName;
 
-        emit(doc.FirstName, fullName);
-        emit(doc.LastName, fullName);
+        if (notEmpty(doc.FirstName)) {
+          emit(doc.FirstName, fullName);
+        }
+        
+        if (notEmpty(doc.LastName)) {
+          emit(doc.LastName, fullName);
+        }
       } break;
 
       case 'Case': {
