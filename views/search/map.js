@@ -9,7 +9,8 @@ function (doc) {
       } break;
 
       case 'Contact':
-      case 'Lead': {
+      case 'Lead':
+      case 'User': {
         // ignore bad data: N/A, ?, and ???
 
         var notEmpty = function (field) {
@@ -32,15 +33,27 @@ function (doc) {
           return true;
         };
 
+        var na = [];
+        if (notEmpty(doc.FirstName)) {
+          na.push(doc.FirstName);
+        }
+        if (notEmpty(doc.LastName)) {
+          na.push(doc.LastName);
+        }
 
-        var fullName = doc.FirstName + ' ' + doc.LastName;
+        var fullName = na.join(' ');
 
         if (notEmpty(doc.FirstName)) {
           emit(doc.FirstName, fullName);
         }
-        
+
         if (notEmpty(doc.LastName)) {
           emit(doc.LastName, fullName);
+        }
+
+        if (notEmpty(doc.Company)) {
+          var label = notEmpty(fullName) ? doc.Company + '('+ fullName + ')' : doc.Company;
+          emit(doc.Company, label);
         }
       } break;
 
