@@ -42,17 +42,16 @@ function (doc) {
         }
 
         var fullName = na.join(' ');
-
-        if (notEmpty(doc.FirstName)) {
-          emit(doc.FirstName, fullName);
+        if (na.length > 1) {
+          emit(fullName, fullName);
         }
 
-        if (notEmpty(doc.LastName)) {
-          emit(doc.LastName, fullName);
+        while (na.length > 0) {
+          emit(na.shift(), fullName);
         }
 
         if (notEmpty(doc.Company)) {
-          var label = notEmpty(fullName) ? doc.Company + '('+ fullName + ')' : doc.Company;
+          var label = notEmpty(fullName) ? doc.Company + ' ('+ fullName + ')' : doc.Company;
           emit(doc.Company, label);
         }
       } break;
