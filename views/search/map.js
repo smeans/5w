@@ -60,6 +60,10 @@ function (doc) {
         emit(doc.CaseNumber, doc.CaseNumber);
       } break;
 
+      case 'Event': {
+        emit(doc.Subject, doc.Subject);
+      } break;
+
       case 'Invoice__c': {
         emit(doc.Invoice_Number__c, doc.Invoice_Number__c);
       } break;
