@@ -1,0 +1,919 @@
+/*
+ *  5w.css
+ *
+ *  Default 5w styles.
+ */
+
+/*
+ * Color Explanations...
+ *
+ * #29AC5B --- Main Green, header background, font colors, and more!
+ * #095740 --- Darker Gree, I'm not sure where I want to use this... might start eliminating.
+ * #b3b3b3 --- Light Grey used on the bottom border of the tabber, and background of the feed items
+ *
+ * Fonts...
+ * font-family: 'Ubuntu-regular', sans-serif;
+ * font-family: 'Ubuntu-medium', sans-serif;
+ * font-family: 'Ubuntu-bold', sans-serif;
+ */
+
+/*
+ * fonts
+ */
+ @font-face {
+   font-family: 'Ubuntu-bold';
+   src: url('../fonts/Ubuntu-B.ttf');
+ }
+
+ @font-face {
+   font-family: 'Ubuntu-medium';
+   src: url('../fonts/Ubuntu-M.ttf');
+ }
+
+@font-face {
+   font-family: 'Ubuntu-regular';
+   src: url('../fonts/Ubuntu-R.ttf');
+ }
+
+ /*
+  *  utility styles
+  */
+.hidden {
+  display: none;
+}
+
+/*
+ *  abstract styles
+ */
+ ._5w_inactive {
+   background-color: #202020;
+ }
+ @import url(https://fonts.googleapis.com/css?family=Ubuntu:400,300,300italic,400italic,500,500italic,700);
+
+ body{
+	background-color: #fff;
+	background-size:cover;
+	font-family: 'Ubuntu-regular', sans-serif;
+ }
+
+._5w_rounded_box {
+  background-color: #fff;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border: 2px solid #095740;
+}
+
+/*
+ *  global styles
+ */
+._5w {
+  font-family: AvenirNext, sans-serif;
+  overflow: hidden;
+}
+
+._5w_active_pane {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+._5w h1, ._5w h2, ._5w h3, ._5w h4, ._5w h5 {
+  background-color: #095740;
+  color: #fff;
+  margin: 0px;
+  padding: 4pt;
+  text-align: left;
+  font-family: 'Ubuntu-bold', sans-serif;
+}
+
+._5w h2 {
+  font-size: 1.3em;
+}
+
+._5w input {
+  width: 40%;
+  font-size: 100%;
+}
+
+._5w_bicon {
+  font-size: 30px;
+  color: #fff;
+  border-radius: 50%;
+  height: 30px;
+  width: 30px;
+  padding: 3px;
+  margin: 2px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+._5w_bicon_bar {
+  marign: 0px;
+  padding: 0px;
+  float:right;
+}
+
+._5w_loading {
+  text-align: center;
+}
+
+._5w_search_list img {
+  height: 24px;
+  width: 24px;
+  border: none;
+}
+
+img._5w_type_icon {
+  height: 48px;
+  width: 48px;
+  border: none;
+  vertical-align: bottom;
+}
+
+._5w_obj_title {
+  background-color: #fff;
+  color: #29AC5B;
+  margin: 0;
+  padding: 0;
+  font-size: 130%;
+  text-align: left;
+  font-family: 'Ubuntu-bold', sans-serif;
+}
+
+._5w_obj_title img._5w_type_icon {
+  float:left;
+}
+
+._5w_obj_title div {
+  display: block;
+  margin:0 8px 0 52px;
+  /*padding-top: 10px;*/
+  white-space: nowrap;
+  overflow: hidden;
+  height: 48px;
+  line-height: 48px;
+  vertical-align: middle;
+  text-overflow: ellipsis;
+  font-size: 75%;
+}
+
+._5w_obj_title .tabbar {
+
+}
+
+/* !!!TODO!!! style these tabs properly
+  (look at this: https://css-tricks.com/better-tabs-with-round-out-borders/)
+*/
+.tabbar {
+  list-style: none;
+  font-size: 20px;
+  margin: 0;
+  padding: 0 5px;
+  width: 100%;
+  background:#fff;
+  text-align: left;
+  font-family: 'Ubuntu-medium', sans-serif;
+  border-bottom: thin solid #b3b3b3;
+}
+
+.tabbar li {
+  display: inline-block;
+  padding:12px 8px 10px 8px;
+}
+
+.browser .tabbar li, .tabbar li {
+  color: #000;
+}
+
+.tabbar li.selected, .browser .tabbar li.selected {
+  color:#29AC5B;
+  border-bottom: 3px solid #29AC5B;
+}
+
+.browser i._5w_doc_link.fa-arrow-right {
+  display: none;
+}
+
+._5w_obj_title .tabbar li {
+
+}
+
+._5w_view_viewer .related ul, ._5w_view_related ul {
+  list-style: none;
+  margin: .5em 0em 0em 0em;
+  padding: 0;
+}
+
+
+
+/*
+ *  browser styles
+ */
+
+._5w_view_browser {
+  background-color:#29AC5B;
+}
+
+
+
+/*
+ *  view styles
+ */
+
+._5w_header {
+  background-color:#29AC5B;
+  margin-top: 20px;
+  padding:0;
+}
+
+
+
+._5w_search_list {
+  padding: 0px;
+}
+
+._5w_search_list .message {
+  color: rgba(0, 0, 0, .5);
+  font-style: italic;
+  text-align: center;
+}
+
+._5w_container {
+  height: 75%; /* !!!LATER!!! this is kind of a hack, need to fix
+                  probably flexbox http://stackoverflow.com/questions/90178/make-a-div-fill-the-height-of-the-remaining-screen-space*/
+  overflow-y: scroll;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.browser ._5w_container.search, .browser ._5w_container.feed {
+  height: -moz-calc(100% - 117px);
+  height: -webkit-calc(100% - 117px);
+  height: -o-calc(100% - 117px);
+  height: calc(100% - 117px);
+}
+
+._5w_menu {
+  float: right;
+  padding-top: 5pt;
+  font-size: 120%;
+}
+
+._5w_search_box {
+  padding: 0 7px 7px 7px;
+  color: #fff;
+}
+
+._5w_search_box input {
+  min-width: 70%;
+  border: none;
+}
+
+._5w_search_list {
+  margin:0;
+}
+
+._5w_search_list li {
+  list-style-type: none;
+  margin:0;
+  padding:4px;
+  border-top: #b3b3b3 thin solid;
+  vertical-align: middle;
+  min-height: 40px;
+}
+
+._5w_search_list li:first-child {
+    border-top: none;
+}
+
+._5w_search_list li img {
+  float:left;
+  padding:0;
+  margin:8px 0;
+}
+
+._5w_search_list li span {
+  font-family: 'Ubuntu-medium', sans-serif;
+  padding:0;
+  margin:8px 8px 8px 28px;
+  display: block;
+}
+
+
+
+._5w_search_list li.message {
+  border:none;
+  margin-top:20px;
+}
+
+div._5w_view_field {
+  margin: 0px 0px .5em 0px;
+}
+
+._5w_view_field label {
+  color: #27ae60;
+  font-size: 70%;
+  vertical-align: top;
+  display: block;
+  margin: .2em 0px 0px 1em;
+}
+
+._5w_view_field div {
+  margin: 0px 0px 0px 1em;
+  /*width: 80%; NOT SURE WHY THIS WAS LIMITED -- IF I FIND THE REASON, WILL TURN BACK ON */
+}
+
+._5w_editing [contenteditable=true] {
+  background-color: #ccc;
+  width:80%;
+  padding:3px;
+}
+
+._5w_editing [contenteditable]:focus {
+  background-color: #eee;
+  border:1px solid #29AC5B;
+}
+
+._5w_field_editing ._5w_header i.fa-pencil {
+  display: none;
+}
+
+/*
+ * 	Styles for the Activity Feed Items
+ *
+ */
+
+
+._5w_activity {
+  margin: 10px 5px;
+  padding: 5px;
+  background-color: #b3b3b3;
+  font-size: 70%;
+  font-family: 'Ubuntu-regular', sans-serif;
+}
+
+._5w_activity table td, ._5w_activity table tr {
+  -webkit-border-horizontal-spacing: 0;
+}
+
+._5w_activity td.target {
+  font-size: 22px;
+  font-family: 'Ubuntu-medium', sans-serif;
+  color:#fff;
+}
+
+._5w_activity td.target ._5w_bicon {
+  color:#fff;
+  height:22px;
+  width:22px;
+  font-size:22px;
+}
+
+._5w_activity table {
+  width: 100%;
+  vertical-align: top;
+}
+
+._5w_activity td.icon {
+  width: 48px;
+  height: 48px;
+  vertical-align: top;
+  padding-top: 4px;
+}
+
+._5w_activity td.icon img {
+  background-color: #fff;
+  border-radius: 5px;
+}
+
+._5w_activity p {
+  background-color: #FFFFA5;
+  min-height: 38px;
+  vertical-align: top;
+  margin: 0;
+  padding: 5px;
+}
+
+._5w_activity .timestamp {
+  color: #fff;
+  font-size: 14px;
+  text-align: right;
+}
+
+._5w_activity .timestamp div {
+  display: inline;
+}
+
+._5w_activity .timestamp div i._5w_bicon {
+  height:14px;
+  width:14px;
+  font-size: 14px;
+  color:#fff;
+}
+
+._5w_container.feed ._5w_activity .timestamp div i._5w_bicon.fa-arrow-right {
+  padding-left: 6px;
+  margin-left: 4px
+}
+
+/*
+ * Related Tab On Objects
+ *
+ */
+
+._5w_container.related h4, ._5w_view_related h4 {
+  background-color: #29AC5B;
+}
+
+._5w_container.related ul li, ._5w_view_related ul li {
+  font-size: 18px;
+  font-family: 'Ubuntu-medium', sans-serif;
+  color:#29AC5B;
+  padding: 12px 5px;
+  border-top: #b3b3b3 thin solid;
+}
+
+._5w_container.related ul li:first-child, ._5w_view_related ul li:first-child {
+  border-top:none;
+  padding-top: 2px;
+}
+
+._5w_container.related ul li ._5w_bicon, ._5w_view_related ul li ._5w_bicon {
+  color:#29AC5B;
+  height:18px;
+  width:18px;
+  font-size:18px;
+}
+
+._5w_container.related i._5w_bicon.fa-arrow-right, ._5w_view_related i._5w_bicon.fa-arrow-right {
+  padding-left: 6px;
+  margin-left: 4px
+}
+
+/*
+ * Info Tab On Objects
+ *
+ */
+
+._5w_container.info ._5w_bicon {
+  color: #29AC5B;
+}
+
+._5w_container.info ._5w_field_type_document_link {
+  font-family: 'Ubuntu-medium', sans-serif;
+  color:#29AC5B;
+}
+
+
+
+
+
+
+/*
+ * POPUP FORM = No Touch Yet, DG
+ *
+ *
+ */
+
+._5w_popup_form {
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  top: 0;
+  left: 0;
+}
+
+._5w_popup_form form {
+  /* ._5w_rounded_box */
+  background-color: #ffffff;
+  border-radius: 0px;
+  -moz-border-radius: 0px;
+  -webkit-border-radius: 0px;
+  border: 0px solid #095740;
+  margin: auto;
+  width:100%;
+  float:left;
+}
+
+._5w_popup_form p {
+  padding: 0pt 4pt;
+}
+
+._5w_close {
+  float: left;
+}
+
+._5w_scope {
+  width: 24px;
+  height: 24px;
+}
+
+/*
+ * Object Viewer Style
+ *
+ */
+
+._5w_view_viewer, ._5w_view_viewer ._5w_header .info, ._5w_view_viewer ._5w_header .feed, ._5w_view_viewer ._5w_header .related {
+  background-color: #29AC5B;
+}
+
+._5w_view_viewer ._5w_container, ._5w_container {
+  background-color:#fff;
+}
+
+
+/*
+ * field editing styles
+ */
+
+._5w_field_hidden {
+  display: none;
+}
+
+._5w_field_editing div._5w_field_hidden {
+  display: inherit;
+  opacity: 0.5;
+}
+
+ ._5w_field_editing i._5w_field_hidden {
+   display: inline-block;
+ }
+
+._5w_empty {
+  display: none;
+}
+
+._5w_field_editing div._5w_empty, ._5w_editing div._5w_empty {
+  display: inherit;
+}
+
+._5w_busy {
+  display: flex;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.5) url(../img/spinner.gif) center center no-repeat;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  top: 0;
+  left: 0;
+}
+
+/* 5_w popup new css start here */
+
+textarea:focus, input:focus{
+    outline: 0;
+}
+
+button:focus{
+    outline: 0;
+}
+
+::-webkit-input-placeholder {
+   color: #fff;
+}
+
+:-moz-placeholder { /* Firefox 18- */
+   color: #fff;
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+   color: #fff;
+}
+
+:-ms-input-placeholder {
+   color: #fff;
+}
+
+._5w_popup_header{
+	background-color:#27ae60;
+	width:100%;
+	float:left;
+	text-align:center;
+	padding:4% 0;
+}
+
+._5w_heading {
+	background:url(../img/arrow-down-heading.png) no-repeat center -23px #fff !important;
+	font-weight:bold;
+	color:#27ae60 !important;
+	width:100%;
+	float:left;
+	text-align:center !important;
+	padding:10px 0 0px !important;
+}
+
+._5w_heading img{
+	max-width:200px;
+}
+
+._5w_popup_header img{
+	max-width:144px;
+}
+
+._5w_heading span{
+	font-weight:100;
+}
+
+._5w_form-content{
+	background:#27ae60;
+	background-size:cover;
+	padding:30px 0;
+	width:100%;
+	float:left;
+}
+
+._5w_form-container{
+	margin:auto;
+	width:50%;
+}
+
+._5w_username_input{
+	background:url(../img/_5w-user-icon.png) no-repeat 6px #0a8966;
+	border-radius:50px;
+	color:#fff;
+  width: 75% !important;
+	margin:0px;
+  padding:20px 0px 20px 60px;
+	border:0px;
+}
+
+._5w_password_input{
+	background:url(../img/_5w-user-lock.png) no-repeat 6px #0a8966;
+	border-radius:50px;
+	color:#fff;
+  width: 75% !important;
+	padding:20px 0px 20px 60px;
+	border:0px;
+}
+
+._5w form button {
+	background-color: #f6993a;
+  width: 100% !important;
+  padding: 6px 0;
+  font-weight: bold;
+  text-align: center !important;
+  color: #fff;
+  text-transform: uppercase;
+  border: 0px;
+  border-radius: 50px;
+}
+
+._5w form button:disabled {
+  background-color: #eee;
+}
+._5w a {
+  color: #f6993a;
+}
+
+._5w_true {
+  font-size: 110%;
+}
+
+._5w_false {
+  font-size: 110%;
+}
+
+._5w_delete {
+  font-size: 110%;
+}
+
+@media screen and (min-width: 100px) and (max-width: 640px){
+
+._5w_heading{
+}
+
+._5w_form-container {
+    margin: auto;
+    width: 79%;
+}
+
+._5w_login-bt{
+	padding:14px 0;
+}
+
+}
+/* 5_w popup new css end here */
+._5w_view_attach_image {
+  height: 100%;
+  width: 100%;
+  background:#27ae60;
+  text-align: center;
+}
+
+._5w_view_attach_image .preview {
+  width: 100%;
+  height: 70%;
+  vertical-align: middle;
+  position: relative;
+}
+
+._5w_view_attach_image .preview img {
+  max-height: 70%;
+  max-width: 80%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+}
+
+._5w_view_attach_image .preview progress {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: absolute;
+  margin: auto;
+}
+
+._5w_view_attach_image .control {
+  width: 100%;
+  height: 30%;
+}
+
+._5w_view_attach_image button {
+  font-size: 100%;
+}
+
+/*
+ * jquery-datewheel-plugin styles
+ */
+ .datewheel {
+   background-color: #f6993a;
+   -moz-border-radius: 10px;
+   border-radius: .25em;
+
+   -webkit-user-select: none;
+   -khtml-user-select: none;
+   -moz-user-select: none;
+   -o-user-select: none;
+   user-select: none;
+ }
+
+.dwlc>*, .dwvc>* {
+  margin: .25em;
+  height: 1.5em;
+}
+
+.dwlc {
+  float: left;
+}
+
+.dwlc>label {
+  display: block;
+  color: #fff;
+  text-align: right;
+}
+
+.dwvc {
+  overflow: hidden;
+}
+
+.dwvc>div {
+  overflow: hidden;
+  display: block;
+  background-color: #fff;
+  border-radius: .25em;
+  vertical-align: middle;
+}
+
+.dwstrip {
+  margin: .125em 0em;
+  position: relative;
+  white-space: nowrap;
+}
+
+.dwstrip>div {
+  display: inline-block;
+  margin: 0em .25em;
+  color: #fff;
+  background-color: #29AC5B;
+  text-align: center;
+
+  min-width: 2em;
+
+  border-radius: .25em;
+}
+
+.dwstrip div:first-child {
+  background-color: #f6993a;
+}
+
+/*
+ * date picker styles
+ */
+._5w_view_date_picker .label {
+  color: #27ae60;
+  margin: 5%;
+  font-size: 200%;
+}
+
+._5w_view_date_picker .datetext {
+  background-color: #b3b3b3;
+  color: #fff;
+  margin: 5%;
+  font-size: 120%;
+  border-radius: .5em;
+  padding: 3pt 5pt;
+}
+
+.datewheel {
+  width: 90%;
+  margin: 5%;
+  font-size: 110%;
+}
+
+.login {
+  background:#27ae60;
+}
+
+/*
+ * flyout_menu
+ */
+
+.flyout_menu  {
+  color: #29AC5B;
+  padding:0;
+  margin:0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  text-align: left;
+  z-index: 100;
+  background-color:#fff;
+}
+
+.flyout_menu ul {
+  margin:60px 0 0 0;
+  padding:0;
+  list-style: none;
+  border:thin solid #b3b3b3;
+}
+
+.flyout_menu ul li {
+  font-family: 'Ubuntu-regular', sans-serif;
+  border-top: thin solid #b3b3b3;
+  padding:10px;
+  font-size: 70%;
+}
+
+.flyout_menu ul li:first-child {
+  border-top:none;
+}
+
+.flyout_menu i {
+  position: relative;
+  float:right;
+  margin-right:5px;
+  top: 26px;
+}
+
+/*
+ *
+ * _5w_view_doc_lookup
+ *
+ */
+
+._5w_view_doc_lookup {
+  background-color:#29AC5B;
+}
+
+/*
+ * About Page Updates
+ *
+ */
+
+._5w_view_page ._5w_container {
+  height: -moz-calc(100% - 60px);
+  height: -webkit-calc(100% - 60px);
+  height: -o-calc(100% - 60px);
+  height: calc(100% - 60px);
+}
+
+._5w_view_page ._5w_header span {
+  font-size: 18px;
+  font-family: 'Ubuntu-medium', sans-serif;
+  color:#FFF;
+}
+
+._5w_view_page ._5w_header {
+  border-bottom: 2px solid #fff;
+}
+
+._5w_view_page ._5w_container h2 {
+  font-size:21px;
+  background-color: #29AC5B;
+  color: #fff;
+  margin: 0px;
+  padding: 4pt;
+  font-family: 'Ubuntu-bold', sans-serif;
+}
+
+._5w_view_page ._5w_container p, ._5w_view_page ._5w_container ul li {
+  font-size: 18px;
+  padding:0 10px;
+}
