@@ -28,7 +28,7 @@ The document type is `Customer`. It has a single data property, `name`. Metadata
 * **default** - This sets metadata for _all_ fields in the system. This is rarely used outside of initial system configuration. This could be used to make all fields read-only by default, for example.
 This system is hierarchical, so it is technically possible to have different metadata settings at the `user`, `object`, `global`, and `default` levels. The most-specific setting is always used. If a `user` setting exists for the current user, it will be used in place of an `object` level setting, for example.
 #### Activities
-Activities are special types of documents that are used to log operations that occurred on other documents in the system. An example would be that when the user clicks on a phone number, the client app might ask them to complete an activity that captures details of the conversation. Activity documents do not participate in global searching. 
+Activities are special types of documents that are used to log operations that occurred on other documents in the system. An example would be that when the user clicks on a phone number, the client app might ask them to complete an activity that captures details of the conversation. Activity documents do not participate in global searching.
 #### Document Field List
 The 5w system was designed to be easily implemented on top of existing databases. When editing an existing JSON document, the library will attempt to display all fields (other than those beginning with the special $ character). When creating a new document or editing an existing document, it will attempt to display all current fields as well as any fields named in the document _prototype_ `fields` array. This allows fields to be made obsolete without processing possibly thousands of existing documents.
 ### metadata
@@ -67,7 +67,7 @@ The 5w library is meant to be instantiated as a singleton and initialized with a
         // display the initial 5w view
         });
 
-      $5w = new $5W('http://couchserver:5984/dbname);
+      $5w = new $5W('http://couchserver:5984/dbname');
       $5w._init();
 ```
 The `5w_loaded` callback is necessary because the library must load its metadata before it is possible to display any views or fields.
