@@ -27,6 +27,8 @@ The document type is `Customer`. It has a single data property, `name`. Metadata
 * **global** - This sets metadata for the field at a system-wide level. Any occurrence of `name` would use the global metadata setting, if it wasn’t overridden at a lower level.
 * **default** - This sets metadata for _all_ fields in the system. This is rarely used outside of initial system configuration. This could be used to make all fields read-only by default, for example.
 This system is hierarchical, so it is technically possible to have different metadata settings at the `user`, `object`, `global`, and `default` levels. The most-specific setting is always used. If a `user` setting exists for the current user, it will be used in place of an `object` level setting, for example.
+#### Activities
+Activities are special types of documents that are used to log operations that occurred on other documents in the system. An example would be that when the user clicks on a phone number, the client app might ask them to complete an activity that captures details of the conversation. Activity documents do not participate in global searching. 
 #### Document Field List
 The 5w system was designed to be easily implemented on top of existing databases. When editing an existing JSON document, the library will attempt to display all fields (other than those beginning with the special $ character). When creating a new document or editing an existing document, it will attempt to display all current fields as well as any fields named in the document _prototype_ `fields` array. This allows fields to be made obsolete without processing possibly thousands of existing documents.
 ### metadata
@@ -70,7 +72,24 @@ The 5w library is meant to be instantiated as a singleton and initialized with a
 ```
 The `5w_loaded` callback is necessary because the library must load its metadata before it is possible to display any views or fields.
 ### Views
-
+The 5w library encapsulates HTML markup and behavior in a series of _views_. They are instantiated using the `makeView()` method, which accepts an HTML element (typically a `<div>`) and a view type name. There are two distinct types of views provided by 5w, although the same framework is used to specify both. The first type of view is used by the client application to create full-sized panes that are displayed using the pane management methods  (described in the **Panes** section). The other type of views are smaller widgets which are used to build up the larger pane-type views. The pane-type views are:
+* **view** - This is the generic root view class.
+* **page** - This is a generic, empty 5W view. It has a title bar and content area.
+* **login** - This provides a login interface.
+* **browser** - This provides a search interface which supports filtering all of the documents in the CouchDB database and presenting a list which the user can click on.
+* **viewer** - This presents an interface that allows viewing and editing a specific document from the CouchDB database.
+* **field_edit** - This displays an interface that allows an administrator to edit the metadata for a specific field type.
+The widget-type views are:
+* **doc_lookup** - This is an input view that allows the user to select a document from the database, generally used to populate a `document_link` field.
+* **date_picker** - Allows the user to choose a date or date/time.
+* **attach_image** - Allows the user to select an image to attach to a document.
+* **scope** - Provides an interface to let the user choose a scope for a given metadata property (from the `user`, `object`, `global`, and `default` choices).
+* **field** - Renders an individual field within a larger document. Uses field metadata to control display and editing.
+* **doc_slug** - Renders a short descriptive link to another document, given a document ID.
+* **activity_list** - Displays a list of activities.
+* **activity** - Displays the details of an individual activity.
+* **related** - Displays a list of documents related to the target document.
+* **search_list** - Provides a list of documents from the CouchDB database which can be filtered.
 ### Panes
-The 5w display system provides a stack-based _pane_ manager. The client application manages its views by calling `pushPane()`, `overlayPane()`, `replacePane()`, and `popPane()`. 
+The 5w display system provides a stack-based _pane_ manager. The client application manages its views by calling `pushPane()`, `overlayPane()`, `replacePane()`, and `popPane()`.
 ### Extensions
