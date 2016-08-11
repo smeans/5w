@@ -19,10 +19,10 @@ function (doc) {
   for (var key in doc) {
     if (doc.hasOwnProperty(key) && endsWith(key, 'Id')) {
       if (getType(doc[key])) {
-        emit([doc._id, getType(doc[key])], doc[key]);
+        emit([doc._id, getType(doc[key])], {_id: doc[key]});
       }
       if (getType(doc._id)) {
-        emit([doc[key], getType(doc._id)], doc._id);
+        emit([doc[key], getType(doc._id)], {_id: doc._id});
       }
     }
   }
@@ -32,10 +32,10 @@ function (doc) {
 
     for (var i = 0; i < ra.length; i++) {
       if (getType(ra[i])) {
-        emit([doc._id, getType(ra[i])], ra[i]);
+        emit([doc._id, getType(ra[i])], {_id: ra[i]});
       }
       if (getType(doc._id)) {
-        emit([ra[i], getType(doc._id)], doc._id);
+        emit([ra[i], getType(doc._id)], {_id: doc._id});
       }
     }
   }
