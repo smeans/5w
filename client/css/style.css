@@ -1,0 +1,118 @@
+* {
+    -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+}
+
+html, body {
+    -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
+    -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
+    -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    font-size: 16pt;
+}
+
+.app, .app>div {
+  height: 100%;
+  width: 100%;
+}
+
+/* Landscape layout (with min-width) */
+@media screen and (min-aspect-ratio: 1/1) and (min-width:400px) {
+    .app {
+    }
+}
+
+/* menu styles */
+.content_layer {
+  display: none;
+   height: 100%;
+   overflow-x: hidden;
+   overflow-y: auto;
+   position: absolute;
+   left: 0;
+   top: 0;
+   z-index: 5;
+   width: 30%;
+   background-color: rgba(0, 0, 0, .5);
+   border-right:2px solid black;
+}
+
+div.content_layer.active {
+  display: block;
+  animation-name: fade-in;
+  animation-duration: .3s;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    width: 100%;
+  }
+  to {
+    opacity: 1;
+    width: 30%;
+  }
+}
+
+nav header {
+  position: relative;
+  margin: 10px 0px;
+  text-align: center;
+  background-color: #fff;
+  min-height: 70px;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+nav header h2 {
+  position: absolute;
+  font-family: monospace;
+  font-weight: bold;
+  color: red;
+  opacity: .5;
+  bottom: -.25em;
+  right: 0;
+}
+
+nav {
+  margin: 0px;
+  padding: 0px;
+  left: 100%;
+  top: 0px;
+  position: fixed;
+  z-index: 0;
+  width: 70%;
+  height: 100%;
+  font-family: 'Ubuntu-bold', sans-serif;
+  background-color: #fff;
+}
+
+.desktop nav {
+  overflow-y: scroll;
+}
+
+nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  color: #267A86;
+  margin-top: 1em;
+}
+
+nav li {
+  padding: .5em;
+  background-color: #fff;
+}
+
+nav li i {
+  min-width: 1.2em;
+}
+
+nav.active {
+ transition: transform .3s ease-in-out;
+ transform:translate(-100%,0px);
+  -webkit-transition: -webkit-transform .3s ease-in-out;
+  -webkit-transform:translate(-100%,0px);
+}

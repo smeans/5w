@@ -1,0 +1,248 @@
+<ph-components>
+  <template name="fw-button">
+    <style>
+    :host {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      color: #fff;
+      background-color: #29AC5B;
+      border-radius: 50%;
+      text-align: center;
+      vertical-align: middle;
+      line-height: 1em;
+    }
+    </style>
+    <span><content></content></span>
+  </template>
+
+  <template name="fw-ordered-list">
+    <style>
+      :host {
+        display: inline-block;
+      }
+
+      ul {
+        list-style: none;
+      }
+
+      :host(.allowReorder) li {
+        margin-left: 0;
+        padding-left: 1.5em;
+        text-indent: -1em;
+      }
+
+      :host(.allowReorder) li:before {
+        content: '\002630';
+        padding-right: .25em;
+      }
+
+      :host(.allowReorder) li.add:before {
+        content: '';
+      }
+
+      [draggable=true] {
+          cursor: move;
+      }
+
+      li {
+        background-color: #2aac5a;
+        color: #fff;
+        margin: .25em;
+        padding: .25em;
+      }
+
+      li:hover {
+        opacity: .5;
+      }
+
+      li.add:hover {
+        opacity: 1.0;
+      }
+
+      .dragging {
+        display: none;
+      }
+    </style>
+    <ul></ul>
+    <template>
+      <li class="add"><input type="text" required name="newItemText"/>&nbsp;<fw-button name="add">+</fw-button></li>
+    </template>
+    <script>
+      class FwOrderedList extends PhElement {
+        connectedCallback() {
+          this.onclick = this.handleListClick;
+          this.ondragstart = this.handleDragStart;
+          this.ondragend = this.handleDragEnd;
+          this.ondragover = this.handleDragOver;
+          this.ondrag = this.handleDrag;
+          this.ondrop = this.handleDrop;
+        }
+
+        handleListClick(e) {
+          var t = e.composedPath()[0];
+          if (t.tagName  != 'LI' || t.classList.contains('add')) {
+            return false;
+          }
+
+          var itemText = t.innerText;
+          e.target.dispatchEvent(new CustomEvent('itemclicked', {bubbles: true, detail:{itemText}}));
+        }
+
+        handleDragStart(e) {
+          var src = e.composedPath()[0];
+
+          this.dragging = src;
+        }
+
+        handleDragEnd(e) {
+          var src = e.composedPath()[0];
+
+          delete this.dragging;
+        }
+
+        handleDragOver(e) {
+          if (this.dragging) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';  // See the section on the DataTransfer object.
+          }
+        }
+
+        handleDrag(e) {
+          var src = e.composedPath()[0];
+        }
+
+        handleDrop(e) {
+          if (!this.dragging) {
+            return false;
+          }
+
+          var lia = this.sqa('li');
+          var i = 0;
+
+          var positionChanged = false;
+
+          while (i < lia.length) {
+            var rc = lia[i].getBoundingClientRect();
+
+            if (e.clientY < rc.y + rc.height/2) {
+              if (lia[i] != this.dragging) {
+                lia[i].parentNode.insertBefore(this.dragging, lia[i]);
+                positionChanged = true;
+                break;
+              }
+            }
+
+            i++;
+          }
+
+          delete this.dragging;
+
+          if (positionChanged) {
+            this.dispatchEvent(new CustomEvent('listchanged', {bubbles: true}));
+          }
+        }
+
+        _resyncUI() {
+          this.allowAdd = this.allowAdd;
+          this.allowReorder = this.allowReorder;
+        }
+
+        set items(items) {
+          var ul = this.sq('ul');
+          ul.innerHTML = items.length ? '<LI>' + items.join('</LI><LI>') + '</LI>' : '';
+          this._resyncUI();
+        }
+
+        get items() {
+          var items = [];
+
+          this.sqa('ul li').forEach(i => {
+            if (!i.classList.contains('add')) {
+              items.push(i.innerText);
+            }
+          });
+
+          return items;
+        }
+
+        set allowAdd(newValue) {
+          var _this = this;
+          _this._allowAdd = newValue;
+
+          if (_this._allowAdd) {
+            if (!_this.sq('li.add')) {
+              var addItem = this.privateTemplate.querySelector('li.add').cloneNode(true);
+              addItem.querySelector('fw-button').addEventListener('click', function (e) {
+                var addInput = _this.sq('.add INPUT');
+                var pattern = _this.getAttribute('pattern');
+                if (pattern) {
+                  addInput.setAttribute('pattern', pattern);
+                } else {
+                  addInput.removeAttribute('pattern');
+                }
+
+                var newItem = document.createElement('LI');
+
+                if (_this.isAddValueValid()) {
+                  newItem.innerText = addInput.value;
+                  _this.listNode.insertBefore(newItem, this.closest('LI'));
+                  this.dispatchEvent(new CustomEvent('listchanged', {bubbles: true}));
+                  addInput.value = '';
+                  _this._resyncUI();
+                } else {
+                  addInput.reportValidity();
+                }
+              });
+
+              _this.listNode.appendChild(addItem);
+            }
+          } else {
+            var ail = toArray(_this.sqa('li.add'));
+            while (ail.length) {
+              var ai = ail.pop();
+              ai.parentNode.removeChild(ai);
+            }
+          }
+        }
+
+        get allowAdd() {
+          return this._allowAdd;
+        }
+
+        set allowReorder(newValue) {
+          if (newValue) {
+            this.classList.add('allowReorder');
+            this.sqa('li:not(.add)').forEach(li => li.draggable = true );
+          } else {
+            this.classList.remove('allowReorder');
+            this.sqa('li:not(.add)').forEach(li => li.draggable = false );
+          }
+        }
+
+        get allowReorder() {
+          return this.classList.contains('allowReorder');
+        }
+
+        get listNode() {
+          return this.sq('UL');
+        }
+
+        get validity() {
+          return _this.sq('.add INPUT').validity || {};
+        }
+
+        isAddValueValid() {
+          var _this = this;
+
+          var addInput = _this.sq('.add INPUT');
+          if (!addInput.checkValidity) {
+            return !!addInput.value.trim();
+          }
+
+          return addInput.checkValidity();
+        }
+      }
+    </script>
+  </template>
+</ph-components>

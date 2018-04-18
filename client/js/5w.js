@@ -11,9 +11,27 @@
         <slug>The constructor shouldn't be called directly as there is a singleton
           for each object type in the system.</slug>
   ]*/
-  $5WObjectType = function (type) {
-    this.type = type;
-  };
+  class $5WObjectType {
+    constructor(type) {
+      this.type = type;
+    }
+
+    get fields() {
+      return this.type in $5WObjectType._protos ? $5WObjectType._protos[this.type].fields : [];
+    }
+
+    set fields(newValue) {
+      this.proto.fields = newValue;
+    }
+
+    get proto() {
+      if (!(this.type in $5WObjectType._protos)) {
+        $5WObjectType._protos[this.type] = {fields: [], allow_create: []};
+      }
+
+      return  $5WObjectType._protos[this.type];
+    }
+  }
 
   $5WObjectType._types = {};
   $5WObjectType._protos = {};
@@ -58,10 +76,6 @@
     return this.type.endsWith('Activity');
   };
 
-  $5WObjectType.prototype.fields = function () {
-    return this.type in $5WObjectType._protos ? $5WObjectType._protos[this.type].fields : null;
-  };
-
   $5WObjectType.prototype.getProto = function () {
     return this.type in $5WObjectType._protos ? $5WObjectType._protos[this.type] : null;
   };
@@ -69,6 +83,12 @@
   $5WObjectType.prototype.displayName = function () {
     return this.type.replace(/([A-Z])/g, " $1").trim();
   };
+
+  $5WObjectType.prototype.isNew = function () {
+    var p = this.getProto();
+
+    return !p || !p._rev;
+  }
     /*[
         </constructor>
       </class>
@@ -238,6 +258,10 @@
       case 'VisitActivity': {
         return o.Name;
       } break;
+
+      case 'DeleteActivity': {
+        return 'Object was deleted.';
+      }
     }
 
     return '[summary for ' + this.type() + ' needed.]';
@@ -618,7 +642,7 @@
     $('._5w_obj_title div', _this.el).text($5wo.displayName());
 
     var ot = $5WObjectType.getType(_this.$5w.typeFromId(id));
-    var kl = ot && ot.fields();
+    var kl = ot && ot.fields;
     var vl = Object.keys($5wo.data);
 
     if (!kl) {
@@ -1780,7 +1804,7 @@
 
     if (!ss) {
       $('ul', this.el).empty();
-      $('ul', this.el).append('<li class="message">search for customers and leads</li>')
+      $('ul', this.el).append('<li class="message">search your documents</li>')
 
       return;
     }
@@ -1791,10 +1815,6 @@
 
         if (!rows.length) {
           $('ul', _this.el).append('<li class="message">no matches found</li>');
-          var uso = $5WObjectType.makeNew('$5w_UnsatisfiedSearch');
-          uso.search = ss;
-          uso.user_info = _this.$5w.user_info;
-          $5w.saveObject(uso);
         }
 
         $.each(rows, function () {
@@ -1807,6 +1827,136 @@
 
         delete _this._request;
       });
+  };
+  /*[
+    </class>
+
+    <class name="$5WPrototypeListView">
+  ]*/
+  $5WPrototypeListView = function ($5w, el, type) {
+    var _this = this;
+
+    $5WView.call(this, $5w, el, type);
+
+    var ch = new Hammer($('.fa-arrow-up', el)[0]);
+    ch.on('tap', function () {
+      _this.$5w.popPane();
+    });
+
+    var ol = $('fw-ordered-list', _this.el)[0];
+
+    ol.valueAdded = _this.valueAdded = function (value) {
+      _this.launchEditor(value);
+    }
+
+    ol.addEventListener('itemclicked', function (e) {
+      _this.launchEditor(e.detail.itemText);
+    });
+
+    _this.refresh();
+  };
+
+  $5WPrototypeListView.prototype.refresh = function() {
+    var _this = this;
+
+    if (_this.rop && _this.rop.state() == 'pending') {
+      return;
+    }
+
+    _this.rop = this.$5w.fetchView({viewName: 'document-types', limit: -1,
+        group: true, reduce: true})
+      .done(function (data) {
+        delete _this._rop;
+
+        var items = [];
+        $(data.rows).each(function () {
+          items.push(this.key);
+        });
+
+        var ol = $('fw-ordered-list', _this.el)[0];
+
+        ol.items = items;
+        ol.allowAdd = true;
+      })
+      .fail(function () {
+        delete _this._rop;
+
+        console.log('prototype_list: refresh failed');
+      });
+  }
+
+  $5WPrototypeListView.prototype.launchEditor = function (type) {
+    var pev = $5w.makeView($('<div/>'), 'prototype_editor', type);
+    pev.loadType(type);
+    $5w.pushPane(pev.el);
+  }
+  /*[
+    </class>
+
+    <class name="$5WPrototypeEditorView">
+  ]*/
+  $5WPrototypeEditorView = function ($5w, el, type) {
+    var _this = this;
+
+    $5WView.call(this, $5w, el, type);
+
+    var ch = new Hammer($('.fa-arrow-up', el)[0]);
+    ch.on('tap', function () {
+      _this.$5w.popPane();
+    });
+
+    var th = new Hammer($('.tabbar', el)[0]);
+    th.on('tap', function (e) { _this.tabTap(e); });
+
+    _this.fieldList().allowAdd = true;
+    _this.fieldList().allowReorder = true;
+
+    _this.el.addEventListener('listchanged', function (e) { _this.handleListChange(e); });
+  };
+
+  $5WPrototypeEditorView.prototype.loadType = function (type) {
+    var _this = this;
+
+    _this.objectType = $5WObjectType.getType(type);
+
+    var label = _this.objectType.displayName();
+
+    if (_this.objectType.isNew()) {
+      label += ' (new)';
+    }
+
+    _this.fieldList().items = _this.objectType.fields;
+
+    $('._5w_header span', _this.el).text(label);
+  }
+
+  $5WPrototypeEditorView.prototype.handleListChange = function (e) {
+    var _this = this;
+
+    _this.objectType.fields = this.fieldList().items;
+    // _this.objectType.save();
+  }
+
+  $5WPrototypeEditorView.prototype.fieldList = function () {
+    return $('.fields fw-ordered-list', this.el)[0];
+  }
+
+  $5WPrototypeEditorView.prototype.tabTap = function (e) {
+    if (e.target.tagName != 'LI') {
+      return;
+    }
+
+    var tl = $(e.target).closest('ul.tabbar');
+    if (tl.length) {
+      var st = $(e.target).text().replace(' ', '_');
+
+      $('li', tl).removeClass('selected');
+      $(e.target).addClass('selected');
+
+      $('._5w_container', this.el).addClass('hidden');
+      $('._5w_container.' + st, this.el).removeClass('hidden');
+      this.$5w.fixup();
+    }
   };
   /*[
     </class>
@@ -2108,7 +2258,7 @@
 
     this.store = createStore();
 
-    this.$5w.fetchObject('$5w_sms')
+    return this.$5w.fetchObject('$5w_sms')
       .done(function (data) {
           _this.store = data;
         });
@@ -2214,21 +2364,14 @@
   $5W.prototype._init = function () {
     var _this = this;
 
-    var hd = $.get('5w.html', function (data) {
-      _this.html = $(data);
-    }, 'html');
+    _this.html = $('#5w_templates')[0].import;
 
     var op = $5WObjectType.refresh();
 
-    return $.when(hd, op)
-      .done(function () {
-        var th = new Hammer($('._5w')[0], {preventDefault: true});
-        th.on('tap', _this._5w_touch);
+    var th = new Hammer($('._5w')[0], {preventDefault: true});
+    th.on('tap', _this._5w_touch);
 
-        callAll(_this.extensions, '_init', [_this]);
-
-        $(document).trigger('5w_loaded');
-      });
+    callAll(_this.extensions, '_init', [_this]);
   };
 
   $5W.prototype.addExtension = function(eo) {
@@ -2239,22 +2382,37 @@
 
   $5W.prototype.login = function (username, password) {
     var _this = this;
+    var checkOnly = !username;
 
     this.showBusy();
 
-    return $.ajax({
-      type: 'POST',
-      url: this.dburl + '/../_session',
+    $.ajax({
+      type: checkOnly ? 'GET' : 'POST',
+      url: this.dburl + '/_session',
       data: {'name': username, 'password': password},
       dataType: 'json'
     })
       .done(function (data) {
+        data = data.userCtx || data;
+
+        if (checkOnly && !data.name) {
+          _this.hideBusy();
+
+          $(document).trigger('5w_not_logged_in');
+
+          return;
+        }
+
+        username = data.name;
+
         _this.user_info = data;
         _this.fetchView('users', username, 1)
           .done(function (data, textStatus, jqXHR) {
               _this.hideBusy();
               if (!data.rows.length) {
-                alert('No fleetCRM account found for \'' + username + '\'. Please contact your administrator.');
+                $(document).trigger('5w_login_fail',
+                  'No account found for \'' + username + '\'. Please contact your administrator.'
+                );
               } else {
                 _this.user_info.doc_id = data.rows[0].id;
                 _this._loadConfig();
@@ -2262,7 +2420,10 @@
             })
           .fail(function () {
             _this.hideBusy();
-            alert('An error occurred retrieving your user information. Please try again later.');
+
+            $(document).trigger('5w_login_fail',
+              'An error occurred retrieving your user information. Please try again later.'
+            );
           });
       });
   };
@@ -2272,7 +2433,11 @@
   };
 
   $5W.prototype.isAdmin = function () {
-    return 'user_info' in this && findString('administrator', this.user_info.roles) >= 0;
+    return 'user_info' in this
+      && (
+        findString('administrator', this.user_info.roles) >= 0
+        || findString('_admin', this.user_info.roles) >= 0
+      );
   };
 
   $5W.prototype.logout = function () {
@@ -2280,7 +2445,7 @@
 
     $.ajax({
       type: 'DELETE',
-      url: this.dburl + '/../_session',
+      url: this.dburl + '/_session',
     })
       .done(function () {
         delete _this.user_info;
@@ -2349,7 +2514,9 @@
       , 'field_edit':$5WFieldEditView, 'doc_slug':$5WDocSlugView
       , 'activity':$5WActivityView, 'activity_list':$5WActivityListView
       , 'related':$5WRelatedView
-      , 'search_list':$5WSearchListView};
+      , 'search_list':$5WSearchListView
+      , 'prototype_list':$5WPrototypeListView
+      , 'prototype_editor':$5WPrototypeEditorView};
   $5W.prototype.makeView = function (el, type) {
     var _this = this;
 

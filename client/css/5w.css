@@ -597,13 +597,9 @@ button:focus{
 }
 
 ._5w_heading {
-	background:url(../img/arrow-down-heading.png) no-repeat center -23px #fff !important;
 	font-weight:bold;
-	color:#27ae60 !important;
 	width:100%;
-	float:left;
-	text-align:center !important;
-	padding:10px 0 0px !important;
+	text-align:center;
 }
 
 ._5w_heading img{
@@ -894,7 +890,7 @@ button:focus{
   height: calc(100% - 60px);
 }
 
-._5w_view_page ._5w_header span {
+._5w_header span {
   font-size: 18px;
   font-family: 'Ubuntu-medium', sans-serif;
   color:#FFF;

@@ -1,0 +1,165 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+<script>
+  class PhElement extends HTMLElement {
+    constructor() {
+      super();
+
+      var root = this.createShadowRoot();
+      root.appendChild(this.constructor.template.content.cloneNode(true));
+    }
+
+    connectedCallback() {}
+
+    disconnectedCallback() {}
+
+    attributeChangedCallback(attr, oldValue, newValue) {
+      if (attr in this) {
+        this[attr] = newValue;
+      }
+    }
+
+    adoptedCallback(oldDocument, newDocument) {}
+
+    /** Execute querySelector against this node's shadowRoot. */
+    sq(query) {
+      return this.shadowRoot.querySelector(query);
+    }
+
+    /** Execute querySelectorAll against this node's shadowRoot. */
+    sqa(query) {
+      return this.shadowRoot.querySelectorAll(query);
+    }
+
+    get templateElement() {
+      return this.constructor.template;
+    }
+
+     get privateTemplate() {
+       return this.sq('template').content;
+     }
+  }
+
+  {
+    var head = document.querySelector('head');
+
+    function titleCase(s) {
+      return s && s[0].toUpperCase() + s.slice(1);
+    }
+
+    function nameToClassName(name) {
+      return name.split('-').map(titleCase).join('');
+    }
+
+    function classFromClassName(className) {
+      try {
+        return eval(className);
+      } catch (e) {
+        return undefined;
+      }
+    }
+
+    function appendScript(script) {
+      var scriptNode = document.createElement('script');
+      scriptNode.innerHTML = script;
+      head.appendChild(scriptNode);
+    }
+
+    function loadComponents(root) {
+      root.querySelectorAll('template').forEach(template => {
+        var tagName = template.getAttribute('name');
+        if (!tagName) {
+          return;
+        }
+
+        var className = nameToClassName(tagName);
+
+        var mainScript = template.content.querySelector('script');
+        if (mainScript) {
+          head.appendChild(document.importNode(mainScript, true));
+          mainScript.parentNode.removeChild(mainScript);
+        }
+
+        var customClass = classFromClassName(className);
+        if (!customClass) {
+          appendScript('class ' + className + ' extends PhElement {}');
+          customClass = classFromClassName(className);
+        }
+
+        customClass.tagName = tagName;
+        customClass.template = document.importNode(template, true);
+        customElements.define(tagName, customClass);
+      });
+    }
+
+    var linkObserver = new MutationObserver(mutations => {
+      mutations.forEach(mutation => {
+        mutation.addedNodes && mutation.addedNodes.forEach(node => {
+          if (node.nodeName == 'LINK' && node.getAttribute('rel') == 'import') {
+            node.addEventListener('load', e => {
+              e.target.import.querySelectorAll('ph-components').forEach(loadComponents);
+            });
+          }
+        });
+      });
+    });
+
+    linkObserver.observe(head, {childList: true});
+  }
+  </script>
+
+  <meta charset="utf-8">
+
+  <title>[Site Name]: home</title>
+  <meta name="description" content="5w Client">
+  <meta name="author" content="Scott Means">
+
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+
+  <link rel="stylesheet" href="css/fontawesome-all.min.css">
+  <link rel="stylesheet" href="css/5w.css?v=1.0">
+  <link rel="stylesheet" href="css/style.css?v=1.0">
+
+  <link rel="import" href="html/fwelements.html">
+  <link id="5w_templates" rel="import" href="html/5w.html">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+</head>
+
+<body>
+  <div class="app _5w">
+    <div class="_5w_pane">
+      <h1>loading...</h1>
+    </div>
+  </div>
+
+  <div class="content_layer"></div>
+  <nav>
+    <header>
+      <h2><span class="version">0.9</span> (beta)</h2>
+    </header>
+    <ul>
+      <li><i class="fa fa-cog">&nbsp;</i>my profile</li>
+      <li><i class="fa fa-cog">&nbsp;</i>prototype editor</li>
+    </ul>
+  </nav>
+
+  <div class="resources hidden">
+    <div class="login_error">
+      <p></p>
+    </div>
+  </div>
+
+  <script src="js/jquery-3.3.1.min.js"></script>
+  <script src="js/hammer.js"></script>
+  <script src="js/utility.js"></script>
+  <script src="js/5w.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

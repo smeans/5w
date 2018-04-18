@@ -1,0 +1,207 @@
+<div class="_5w_templates">
+  <div class="login _5w_popup_form">
+    <form id="login_form">
+      <header class="_5w_popup_header">
+        <img src="img/5w-logo.png" alt="Login">
+      </header>
+      <h1>5w login</h1>
+      <div class="_5w_form-content">
+      		<div class="_5w_form-container">
+			  <p><input type="text" name="user" class="_5w_username_input" placeholder="Username" autocorrect="off" autocapitalize="off" required/></p>
+			  <p><input type="password" name="pass" class="_5w_password_input" placeholder="Password" required/></p>
+			  <p><button type="submit" class="_5w_login-bt">login</button></p>
+      		</div>
+      </div>
+    </form>
+  </div>
+  <div class="browser">
+    <div class="_5w_header">
+      <div class="_5w_search_box">
+    		<input type="input" name="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>&nbsp;<i class="fa fa-search fa-5"></i>
+    		<i class="_5w_menu fa fa-bars"></i>
+  	  </div>
+      <ul class="tabbar">
+    		<li class="selected">search</li>
+    		<li>feed</li>
+        <li>my items</li>
+  	  </ul>
+    </div>
+    <div class="_5w_container search">
+    </div>
+    <div class="_5w_container feed hidden"></div>
+    <div class="_5w_container my_items hidden"></div>
+  </div>
+  <div class="page">
+    <div class="_5w_header">
+      <i class="_5w_bicon fa fa-arrow-up">&nbsp;</i>&nbsp;<span></span>
+    </div>
+    <div class="_5w_container">
+    </div>
+  </div>
+  <div class="viewer">
+    <div class="_5w_header">
+        <div class="info">
+          <i class="_5w_bicon fa fa-arrow-up">&nbsp;</i>&nbsp;
+          <i class="_5w_bicon _5w_done fa fa-check-circle-o _5w_field_hidden">&nbsp;</i>
+          <i class="_5w_bicon fa fa-pencil">&nbsp;</i>
+          <div class="_5w_bicon_bar editing hidden">
+            <i class="_5w_bicon fa fa-check _5w_true">&nbsp;</i>
+            <i class="_5w_bicon fa fa-times _5w_false">&nbsp;</i>
+            <i class="_5w_bicon fa fa-trash _5w_remove_object">&nbsp;</i>
+          </div>
+          <div class="_5w_bicon_bar action">
+          </div>
+        </div>
+        <div class="feed hidden">
+          <i class="_5w_bicon fa fa-arrow-up">&nbsp;</i>&nbsp;
+        </div>
+        <div class="related hidden">
+          <i class="_5w_bicon fa fa-arrow-up">&nbsp;</i>&nbsp;
+          <div class="_5w_bicon_bar r_action">
+            <i class="_5w_bicon fa fa-plus">&nbsp;</i>
+          </div>
+        </div>
+    </div>
+    <div class="_5w_obj_title"><img class="_5w_type_icon" src="img/1x1.png"/><div>loading...</div>
+      <ul class="tabbar"><li class="selected">info</li><li>feed</li><li>related</li></ul>
+    </div>
+    <div class="_5w_container info _5w_form">
+      <form>
+      </form>
+    </div>
+    <div class="_5w_container feed hidden">
+    </div>
+    <div class="_5w_container related hidden">
+      <ul></ul>
+    </div>
+  </div>
+  <div class="doc_lookup">
+    <div class="_5w_header">
+      <div class="_5w_search_box"><input type="input" name="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>&nbsp;<i class="fa fa-search fa-5"></i><i class="_5w_menu fa fa-times"></i></div>
+    </div>
+    <div class="_5w_container search">
+    </div>
+  </div>
+  <div class="date_picker">
+    <div class="_5w_header">
+      <i class="_5w_bicon fa fa-arrow-up">&nbsp;</i>&nbsp;<span></span>
+      <div class="_5w_bicon_bar">
+        <i class="_5w_bicon fa fa-check _5w_true">&nbsp;</i>
+        <i class="_5w_bicon fa fa-times _5w_false">&nbsp;</i>
+      </div>
+    </div>
+    <div class="_5w_container">
+      <div class="label">&nbsp;</div>
+      <div class="datetext">&nbsp;</div>
+      <div class="picker"></div>
+    </div>
+  </div>
+  <div class="pikaday">
+    <div class="_5w_header">
+      <i class="_5w_bicon fa fa-arrow-up">&nbsp;</i>&nbsp;<span></span>
+      <div class="_5w_bicon_bar">
+        <i class="_5w_bicon fa fa-check _5w_true">&nbsp;</i>
+        <i class="_5w_bicon fa fa-times _5w_false">&nbsp;</i>
+      </div>
+    </div>
+    <div class="_5w_container">
+      <div class="label"></div>
+      <div class="datetext"><input type="text" class="datepicker" name="datepicker" style="width: 100%;"></div>
+      <div class="picker" style="width: 260px; margin-left: auto; margin-right: auto; margin-top: 10px;"></div>
+    </div>
+  </div>
+  <div class="field">
+    <label></label>
+    <div></div>
+  </div>
+  <div class="search_list">
+    <ul class="_5w_search_list">
+      <li class="message">search your documents</li>
+    </ul>
+    <div class="_5w_search_list_group_container"></div>
+  </div>
+  <div class="field_edit _5w_popup_form">
+    <form id="_5w_field_editor">
+      <h1><span></span><i class="_5w_close fa fa-times-circle"></i></h1>
+      <p><label><i class="_5w_scope scope_label"></i>Label</label><input class="prop" type="text" name="label"/></p>
+      <p><label><i class="_5w_scope scope_hidden"></i>Hide</label><input class="prop" type="checkbox" name="hidden"/></p>
+      <p><label><i class="_5w_scope scope_alwaysshow"></i>Always Show</label><input class="prop" type="checkbox" name="alwaysshow"/></p>
+      <p><label><i class="_5w_scope scope_readonly"></i>Read Only</label><input class="prop" type="checkbox" name="readonly"/></p>
+      <p><label><i class="_5w_scope scope_required"></i>Required</label><input class="prop" type="checkbox" name="required"/></p>
+      <p><label><i class="_5w_scope scope_type"></i>Type</label>
+        <select class="prop" name="type">
+          <option>string</option>
+          <option>choice</option>
+          <option>boolean</option>
+          <option>currency</option>
+          <option>percent</option>
+          <option>datetime</option>
+          <option>date</option>
+          <option>email</option>
+          <option>phone</option>
+          <option>mobile</option>
+          <option>fax</option>
+          <option>physical_address</option>
+          <option>mailing_address</option>
+          <option>url</option>
+          <option>document_link</option>
+          <option>document_link_list</option>
+          <option>attachments</option>
+        </select>
+      </p>
+      <p class="choices_field hidden"><label><i class="_5w_scope scope_choices"></i>Choices</label><input class="prop" name="choices" placeholder="item 1, item 2, ..."/></p>
+      <p class="document_link_filter_field hidden"><label><i class="_5w_scope scope_document_link_filter"></i>Document Link Filter</label><input class="prop" name="document_link_filter" placeholder="Account, Contact, ..."/></p>
+      <p><button type="submit" name="save">save</button><button type="button" name="cancel">cancel</button></p>
+    </form>
+  </div>
+  <div class="viewer_menu">
+    <div class="flyout_menu">
+      <i class="fa fa-minus">&nbsp</i>
+      <ul></ul>
+    </div>
+  </div>
+  <div class="simple_modal">
+    <div class="simple_modal_body">
+      <div class="simple_modal_overlay"></div>
+      <div class="simple_modal_content"></div>
+    </div>
+  </div>
+  <div class="attach_image _5w_popup_form">
+    <div class="preview">
+      <img src="img/photo-placeholder.png"/>
+      <progress class="hidden"></progress>
+    </div>
+    <div class="control">
+      <p>
+          <i class="fa fa-camera _5w_bicon">&nbsp;</i>&nbsp;
+          <i class="fa fa-picture-o _5w_bicon">&nbsp;</i>
+      </p>
+      <p>
+        <button type="button" class="attach" disabled="disabled">attach</button>
+        <button type="button">cancel</button>
+      </p>
+    </div>
+  </div>
+  <div class="prototype_list">
+    <div class="_5w_header">
+      <i class="_5w_bicon fa fa-arrow-up">&nbsp;</i>&nbsp;<span>document prototypes</span>
+    </div>
+    <div class="_5w_container">
+      <fw-ordered-list pattern="^[A-Z]\w+$">
+      </fw-ordered-list>
+    </div>
+  </div>
+  <div class="prototype_editor">
+    <div class="_5w_header">
+      <i class="_5w_bicon fa fa-arrow-up">&nbsp;</i>&nbsp;<span></span>
+      <ul class="tabbar"><li class="selected">fields</li><li>allow create</li></ul>
+    </div>
+    <div class="_5w_container fields">
+      <fw-ordered-list pattern="^[A-Z]\w+$">
+      </fw-ordered-list>
+    </div>
+    <div class="_5w_container allow_create hidden">
+      <h2>allow create list</h2>
+    </div>
+  </div>
+</div>
