@@ -12,8 +12,60 @@
           for each object type in the system.</slug>
   ]*/
   class $5WObjectType {
+    static refresh() {
+      var pp = $5w.fetchObjectRange("$5w_proto_");
+      pp.done(function (data, textStatus, jqXHR) {
+        $5WObjectType._protos = {};
+
+        $.each(data.rows, function () {
+          var type = this.id.split('_').pop();
+          $5WObjectType._protos[type] = this.doc;
+        });
+      });
+
+      return pp;
+    };
+
+    static getAllFieldNames() {
+      var s = new Set();
+
+      for (var key in $5WObjectType._protos) {
+        $5WObjectType._protos[key].fields.forEach(fieldName => {
+          s.add(fieldName);
+        });
+      };
+
+      return Array.from(s.values());
+    }
+
+    static getAllTypeNames() {
+      return Object.keys($5WObjectType._protos);
+    }
+
+    static rebuildSearchIndexView() {
+      $5WObjectType.refresh().done(function () {
+        // !!!TODO!!! write this
+      });
+    }
+
+
     constructor(type) {
       this.type = type;
+    }
+
+    save() {
+      var _this = this;
+
+      return $.ajax({
+              type: 'PUT',
+              url: $5w.dburl + '/' + _this.proto._id,
+              data: JSON.stringify(_this.proto),
+              dataType: 'json'
+            })
+            .done(function (data) {
+              _this.proto._rev = data.rev;
+              $5WObjectType.rebuildSearchIndexView();
+            });
     }
 
     get fields() {
@@ -22,6 +74,14 @@
 
     set fields(newValue) {
       this.proto.fields = newValue;
+    }
+
+    get allow_create() {
+      return this.type in $5WObjectType._protos ? $5WObjectType._protos[this.type].allow_create : [];
+    }
+
+    set allow_create(newValue) {
+      this.proto.allow_create = newValue;
     }
 
     get proto() {
@@ -35,20 +95,6 @@
 
   $5WObjectType._types = {};
   $5WObjectType._protos = {};
-
-  $5WObjectType.refresh = function () {
-    var pp = $5w.fetchObjectRange("$5w_proto_");
-    pp.done(function (data, textStatus, jqXHR) {
-      $5WObjectType._protos = {};
-
-      $.each(data.rows, function () {
-        var type = this.id.split('_').pop();
-        $5WObjectType._protos[type] = this.doc;
-      });
-    });
-
-    return pp;
-  };
 
   $5WObjectType.getType = function (type) {
     if (!(type in $5WObjectType._types)) {
@@ -162,54 +208,21 @@
 
     t = o._id;
 
+    var ot = $5WObjectType.getType(this.type());
+
     if (this.isNew()) {
-      var tdn = $5WObjectType.getType(this.type()).displayName();
-
-      return '(new ' + tdn.toLowerCase() + ')';
+      return '(new ' + ot.displayName().toLowerCase() + ')';
     }
 
-    switch (this.type()) {
-      case 'User':
-      case 'Contact':
-      case 'Lead': {
-        if (o.FirstName) {
-          t = ''.cat(o.FirstName, ' ', o.LastName);
-        } else if (o.LastName) {
-          t = o.LastName;
-        } else if (o.Company) {
-          t = o.Company;
-        } else if (o.Email) {
-          t = o.Email;
-        }
-      } break;
+    var de = ot.proto.display_expression;
 
-      case 'Event': {
-        var ets = moment(o.CreatedDate).format('l');
-        t = (o.Subject ? o.Subject : '[Event from]') + ' (' + ets + ')';
-      } break;
-
-      case 'Task': {
-        t = o.Subject;
-      } break;
-
-      case 'Note': {
-        t = o.Title || o._id;
-      } break;
-
-      case 'Case': {
-        t = o.Subject ? o.Subject + '(' + o.CaseNumber + ')' : o.CaseNumber;
-      } break;
-
-      default: {console.log(o);
-        t = o.Name || o.Title || o._id;
-      } break;
-    }
+    console.log(de);
 
     if (!t) {
       console.log('no display name for object ' + o._id);
     }
 
-    return t ? t : 'missing description (' + o._id + ')';
+    return t ? t : 'missing display expression (' + o._id + ')';
   };
   /*[
       </method>
@@ -699,9 +712,8 @@
     });
 
     var tp = $5WObjectType.getType(_this.$5wo.type());
-    var proto = tp.getProto();
 
-    if (proto && 'allow_create' in proto) {
+    if (tp.getProto().allow_create.length) {
       $(ab).append('<div class="_5w_bicon fa fa-plus flyout_parent">&nbsp;</div>');
     }
   };
@@ -967,7 +979,6 @@
       $('ul', cm).append(li);
     });
 
-
     $(e.target).append(cm);
 
     var mt = new Hammer($('.flyout_menu', e.target)[0]);
@@ -1093,7 +1104,7 @@
     $(this.el).addClass('_5w_field_type_' + this.mdo.type);
 
     $(this.el).attr('data-fieldname', fieldName);
-    $('label', this.el).text(this.mdo.label ? this.mdo.label : fieldName);
+    $('label', this.el).text(this.mdo.label ? this.mdo.label : fieldName.replace(/([A-Z])/g, " $1"));
 
     var o = this.viewer.$5wo.data;
     if (!o[fieldName]) {
@@ -1895,24 +1906,130 @@
 
     <class name="$5WPrototypeEditorView">
   ]*/
-  $5WPrototypeEditorView = function ($5w, el, type) {
-    var _this = this;
+  class $5WPrototypeEditorView {
+    constructor($5w, el, type) {
+      var _this = this;
 
-    $5WView.call(this, $5w, el, type);
+      $5WView.call(this, $5w, el, type);
 
-    var ch = new Hammer($('.fa-arrow-up', el)[0]);
-    ch.on('tap', function () {
-      _this.$5w.popPane();
-    });
+      var ch = new Hammer($('.fa-arrow-up', el)[0]);
+      ch.on('tap', function () {
+        _this.$5w.popPane();
+      });
 
-    var th = new Hammer($('.tabbar', el)[0]);
-    th.on('tap', function (e) { _this.tabTap(e); });
+      var th = new Hammer($('.tabbar', el)[0]);
+      th.on('tap', function (e) { _this.tabTap(e); });
 
-    _this.fieldList().allowAdd = true;
-    _this.fieldList().allowReorder = true;
+      var sc = new Hammer($('.editing .fa-check', el)[0]);
+      sc.on('tap', function (e) { _this.saveChanges(e) });
 
-    _this.el.addEventListener('listchanged', function (e) { _this.handleListChange(e); });
-  };
+      var dc = new Hammer($('.editing .fa-times', el)[0]);
+      dc.on('tap', function (e) { _this.discardChanges(e) });
+
+      _this.fieldList().allowAdd = true;
+      _this.fieldList().allowReorder = true;
+
+      _this.acList().allowAdd = true;
+      _this.acList().allowReorder = true;
+      _this.acList().allowDelete = true;
+
+      _this.acList().addDatalist = $5WObjectType.getAllTypeNames();
+
+      _this.el.addEventListener('itemclicked', function (e) { _this.handleListClick(e); });
+      _this.el.addEventListener('listchanged', function (e) { _this.handleListChange(e); });
+      _this.el.addEventListener('addinputchanged', function (e) { _this.handleAddInputChange(e); });
+    }
+
+    saveChanges(e) {
+      var _this = this;
+
+      _this.objectType.fields = this.fieldList().items;
+      _this.objectType.allow_create = this.acList().items;
+
+      var pf = _this.propertiesForm();
+      _this.objectType.proto.sort_type = pf.sort_type.value;
+      _this.objectType.proto.display_expression = pf.display_expression.value;
+
+      _this.objectType.save()
+        .done(function () {
+          _this.dirty = false;
+        })
+        .fail(function () {
+          alert('an error occurred while saving');
+        });
+    }
+
+    discardChanges(e) {
+      var _this = this;
+
+      _this.loadType(_this.objectType.type);
+      _this.dirty = false;
+    }
+
+    handleListClick(e) {
+      var _this = this;
+
+      var fev = _this.$5w.makeView($('<div class="_5w_popup_form"/>'), 'field_edit');
+
+      fev.edit(_this.objectType.type, e.detail.itemText);
+
+      _this.$5w.overlayPane(fev.el);
+    }
+
+    handleListChange(e) {
+      var _this = this;
+
+      this.dirty = true;
+    }
+
+    handleAddInputChange(e) {
+      var _this = this;
+
+      _this._syncFieldNames(e.detail.input.value);
+    }
+
+    _syncFieldNames(search) {
+      var _this = this;
+
+      if (this._request) {
+        this._request.abort();
+        delete this._request;
+      }
+
+      _this._request = this.$5w.fetchView({viewName: 'field-names',
+          startkey:search.toLowerCase(), endkey:search.toUpperCase() + '\u9999', limit: -1,
+          group: true, reduce: true})
+        .done(function (data) {
+          var fields = [];
+
+          data.rows.forEach(row => {
+            fields.push(row.key);
+          });
+
+          _this.fieldList().addDatalist = fields;
+        })
+        .fail(function () {
+          _this.fieldList().addDatalist = $5WObjectType.getAllFieldNames();
+        });
+    }
+
+    set dirty(newValue) {
+      var _this = this;
+
+      _this._dirty = newValue;
+      if (_this._dirty) {
+        $('.editing', _this.el).removeClass('hidden');
+      } else {
+        $('.editing', _this.el).addClass('hidden');
+      }
+    }
+
+    get dirty() {
+      var _this = this;
+
+      return _this._dirty;
+    }
+  }
 
   $5WPrototypeEditorView.prototype.loadType = function (type) {
     var _this = this;
@@ -1927,18 +2044,30 @@
 
     _this.fieldList().items = _this.objectType.fields;
 
+    _this.acList().items = _this.objectType.allow_create;
+
+    var pf = _this.propertiesForm();
+    pf.sort_type.value = _this.objectType.proto.sort_type || 'byKey';
+    pf.display_expression.value = _this.objectType.proto.display_expression || '';
+
+    pf.oninput =
+    pf.onchange = function (e) {
+      _this.dirty = true;
+    }
+
     $('._5w_header span', _this.el).text(label);
-  }
-
-  $5WPrototypeEditorView.prototype.handleListChange = function (e) {
-    var _this = this;
-
-    _this.objectType.fields = this.fieldList().items;
-    // _this.objectType.save();
   }
 
   $5WPrototypeEditorView.prototype.fieldList = function () {
     return $('.fields fw-ordered-list', this.el)[0];
+  }
+
+  $5WPrototypeEditorView.prototype.acList = function () {
+    return $('.allow_create fw-ordered-list', this.el)[0];
+  }
+
+  $5WPrototypeEditorView.prototype.propertiesForm = function () {
+    return $('.properties form', this.el)[0];
   }
 
   $5WPrototypeEditorView.prototype.tabTap = function (e) {
@@ -2735,7 +2864,7 @@
             }
 
             var tp = $5WObjectType.getType(at).getProto();
-            var st = tp.sort_type ? tp.sort_type : 'byKey';
+            var st = tp.sort_type || 'byKey';
 
             switch (st) {
               case 'displayName': {

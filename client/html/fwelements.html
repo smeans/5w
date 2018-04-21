@@ -6,7 +6,7 @@
       width: 1em;
       height: 1em;
       color: #fff;
-      background-color: #29AC5B;
+      background-color: #095740;
       border-radius: 50%;
       text-align: center;
       vertical-align: middle;
@@ -41,6 +41,24 @@
         content: '';
       }
 
+      :host(.allowReorder) li.add {
+        margin-left: 0;
+        padding-left: 0;
+        text-indent: 0;
+      }
+
+      :host(.allowDelete) li:after {
+        font-weight: bold;
+        font-size: 110%;
+        content: '\0000D7';
+        color: #f00;
+        float: right;
+      }
+
+      :host(.allowDelete) li.add:after {
+        content: '';
+      }
+
       [draggable=true] {
           cursor: move;
       }
@@ -59,14 +77,12 @@
       li.add:hover {
         opacity: 1.0;
       }
-
-      .dragging {
-        display: none;
-      }
     </style>
     <ul></ul>
+    <datalist id="addValues"></datalist>
     <template>
-      <li class="add"><input type="text" required name="newItemText"/>&nbsp;<fw-button name="add">+</fw-button></li>
+      <li class="add"><input type="text" list="addValues" required name="newItemText"/>
+        &nbsp;<fw-button name="add">+</fw-button></li>
     </template>
     <script>
       class FwOrderedList extends PhElement {
@@ -77,12 +93,24 @@
           this.ondragover = this.handleDragOver;
           this.ondrag = this.handleDrag;
           this.ondrop = this.handleDrop;
+          this.oninput = this.handleAddChange;
+          this.onchange = this.handleAddChange;
         }
 
         handleListClick(e) {
           var t = e.composedPath()[0];
           if (t.tagName  != 'LI' || t.classList.contains('add')) {
             return false;
+          }
+
+          if (this.allowDelete) {
+            var rc = t.getBoundingClientRect();
+            if (e.clientX > (rc.left + rc.width)-rc.height) {
+              t.parentNode.removeChild(t);
+              this.dispatchEvent(new CustomEvent('listchanged', {bubbles: true}));
+
+              return;
+            }
           }
 
           var itemText = t.innerText;
@@ -109,7 +137,6 @@
         }
 
         handleDrag(e) {
-          var src = e.composedPath()[0];
         }
 
         handleDrop(e) {
@@ -143,6 +170,13 @@
           }
         }
 
+        handleAddChange(e) {
+          var src = e.composedPath()[0];
+          src.setCustomValidity('');
+
+          this.dispatchEvent(new CustomEvent('addinputchanged', {bubbles: true, detail: {input:src}}));
+        }
+
         _resyncUI() {
           this.allowAdd = this.allowAdd;
           this.allowReorder = this.allowReorder;
@@ -164,6 +198,23 @@
           });
 
           return items;
+        }
+
+        set addDatalist(newValue) {
+          this._addDatalist = newValue;
+
+          var datalist = this.sq('datalist');
+
+          var html = '';
+          newValue.forEach(v => {
+            html += '<option value="' + v + '">';
+          });
+
+          datalist.innerHTML = html;
+        }
+
+        get addDatalist() {
+          return this._addDatalist;
         }
 
         set allowAdd(newValue) {
@@ -224,6 +275,26 @@
           return this.classList.contains('allowReorder');
         }
 
+        set allowDelete(newValue) {
+          if (newValue) {
+            this.classList.add('allowDelete');
+          } else {
+            this.classList.remove('allowDelete');
+          }
+        }
+
+        get allowDelete() {
+          return this.classList.contains('allowDelete');
+        }
+
+        set allowDuplicates(newValue) {
+          this._allowDuplicates = newValue;
+        }
+
+        get allowDuplicates() {
+          return this._allowDuplicates;
+        }
+
         get listNode() {
           return this.sq('UL');
         }
@@ -236,8 +307,15 @@
           var _this = this;
 
           var addInput = _this.sq('.add INPUT');
+
           if (!addInput.checkValidity) {
             return !!addInput.value.trim();
+          }
+
+          if (!this._allowDuplicates && this.items.indexOf(addInput.value.trim()) >= 0) {
+            addInput.setCustomValidity('duplicate items not allowed');
+
+            return false;
           }
 
           return addInput.checkValidity();

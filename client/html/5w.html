@@ -126,6 +126,7 @@
       <p><label><i class="_5w_scope scope_label"></i>Label</label><input class="prop" type="text" name="label"/></p>
       <p><label><i class="_5w_scope scope_hidden"></i>Hide</label><input class="prop" type="checkbox" name="hidden"/></p>
       <p><label><i class="_5w_scope scope_alwaysshow"></i>Always Show</label><input class="prop" type="checkbox" name="alwaysshow"/></p>
+      <p><label><i class="_5w_scope scope_includeinsearch"></i>Include in Search</label><input class="prop" type="checkbox" name="includeinsearch"/></p>
       <p><label><i class="_5w_scope scope_readonly"></i>Read Only</label><input class="prop" type="checkbox" name="readonly"/></p>
       <p><label><i class="_5w_scope scope_required"></i>Required</label><input class="prop" type="checkbox" name="required"/></p>
       <p><label><i class="_5w_scope scope_type"></i>Type</label>
@@ -194,14 +195,36 @@
   <div class="prototype_editor">
     <div class="_5w_header">
       <i class="_5w_bicon fa fa-arrow-up">&nbsp;</i>&nbsp;<span></span>
-      <ul class="tabbar"><li class="selected">fields</li><li>allow create</li></ul>
+      <div class="_5w_bicon_bar editing hidden">
+        <i class="_5w_bicon fa fa-check _5w_true">&nbsp;</i>
+        <i class="_5w_bicon fa fa-times _5w_false">&nbsp;</i>
+      </div>
+      <ul class="tabbar">
+        <li class="selected">fields</li>
+        <li>allow create</li>
+        <li>properties</li>
+      </ul>
     </div>
     <div class="_5w_container fields">
       <fw-ordered-list pattern="^[A-Z]\w+$">
       </fw-ordered-list>
     </div>
     <div class="_5w_container allow_create hidden">
-      <h2>allow create list</h2>
+      <fw-ordered-list pattern="^[A-Z]\w+$">
+      </fw-ordered-list>
+    </div>
+    <div class="_5w_container _5w_field_editor properties hidden">
+      <form>
+        <p>
+          <label>sort type</label>&nbsp;
+          <select name="sort_type">
+            <option value="byKey">by key</option>
+            <option value="displayName">display name</option>
+            <option value="mostRecent">most recent</option>
+          </select>
+        </p>
+        <p><label>display expression</label>&nbsp;<input type="text" name="display_expression"/></p>
+      </form>
     </div>
   </div>
 </div>
