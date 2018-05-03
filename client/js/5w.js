@@ -43,11 +43,51 @@
     }
 
     static rebuildSearchIndexView() {
+      var mapFunction = "function (e){if(Array.prototype.reduce||Object.defineProperty(Array.prototype,\"reduce\",{value:function(e){if(null===this)throw new TypeError(\"Array.prototype.reduce called on null or undefined\");if(\"function\"!=typeof e)throw new TypeError(e+\" is not a function\");var r,n=Object(this),t=n.length>>>0,i=0;if(arguments.length>=2)r=arguments[1];else{for(;i<t&&!(i in n);)i++;if(i>=t)throw new TypeError(\"Reduce of empty array with no initial value\");r=n[i++]}for(;i<t;)i in n&&(r=e(r,n[i],i,n)),i++;return r}}),e.hasOwnProperty(\"ObjectType\")&&!e.IsDeleted){var r={SEARCH:\"INFO\"}[e.ObjectType];if(r){var n=e._id;if(r.display_expression&&(n=function e(r,n){if(r.constructor!==Array)return r;if(!(r.length<1)){if(1==r.length)return n[r[0]];var t=\"$all\";0==r[0].indexOf(\"$\")&&(t=r[0],r=r.slice(1));for(var i=[],o=0;o<r.length;o++){var l=r[o];i.push(e(l,n))}switch(t){case\"$first\":return i.reduce(function(e,r){return e||r});case\"$any\":return i.join(\"\");default:case\"$all\":var a=i.reduce(function(e,r){return null==e||null==r?void 0:e+r},\"\");return null==a?\"\":a}}}(r.display_expression,e))&&emit(n,n),r.searchFields)for(var t=0;t<r.searchFields.length;t++){var i=e[r.searchFields[t]];i&&emit(i,n)}}}}";
+      var designDoc = {
+        "_id": "_design/5ws",
+        "views": {
+          "5wo_search": {}
+        }
+      };
+      var siToken = "{SEARCH:\"INFO\"}";
+
       $5WObjectType.refresh().done(function () {
-        // !!!TODO!!! write this
+        var searchInfo = {};
+
+        for (var typeName in $5WObjectType._protos) {
+          var ot = $5WObjectType.getType(typeName);
+
+          var typeSearchInfo = {typeName};
+          typeSearchInfo.searchFields = ot.proto.fields.filter(fieldName => {
+            var mdo = $5w._sms.getMetadata(typeName, fieldName);
+            return mdo && mdo.includeinsearch;
+          });
+          typeSearchInfo.display_expression = ot.proto && ot.proto.display_expression;
+
+          searchInfo[typeName] = typeSearchInfo;
+        }
+
+        designDoc.views['5wo_search']['map'] = mapFunction.replace(siToken, JSON.stringify(searchInfo));
+
+        $.ajax({
+          type: 'GET',
+          url: $5w.dburl + '/' + designDoc._id,
+        })
+          .always(function (data) {
+            if (data && data._rev) {
+              designDoc._rev = data._rev;
+            }
+
+            return $.ajax({
+                    type: 'PUT',
+                    url: $5w.dburl + '/' + designDoc._id,
+                    data: JSON.stringify(designDoc),
+                    dataType: 'json'
+                  });
+          });
       });
     }
-
 
     constructor(type) {
       this.type = type;
@@ -55,6 +95,10 @@
 
     save() {
       var _this = this;
+
+      if (!_this.proto.hasOwnProperty('_id')) {
+        _this.proto._id = '$5w_proto_' + this.type;
+      }
 
       return $.ajax({
               type: 'PUT',
@@ -215,8 +259,9 @@
     }
 
     var de = ot.proto.display_expression;
-
-    console.log(de);
+    if (de) {
+      t = evalJsonTemplate(de, o);
+    }
 
     if (!t) {
       console.log('no display name for object ' + o._id);
@@ -690,9 +735,9 @@
     var _this = this;
 
     if (this.$5wo.isReadOnly()) {
-      $('._5w_header .fa-pencil, .related .fa-plus', this.el).addClass('hidden');
+      $('._5w_header .fa-edit, .related .fa-plus', this.el).addClass('hidden');
     } else {
-      $('._5w_header .fa-pencil, .related .fa-plus', this.el).removeClass('hidden');
+      $('._5w_header .fa-edit, .related .fa-plus', this.el).removeClass('hidden');
     }
 
     var ab = $('._5w_header ._5w_bicon_bar.action', this.el);
@@ -806,7 +851,7 @@
       } break;
 
       case 'I': {
-        if ($(e.target).hasClass('fa-pencil')) {
+        if ($(e.target).hasClass('fa-edit')) {
           $(e.target).closest('._5w_view_viewer').addClass('_5w_field_editing');
         }
       } break;
@@ -825,9 +870,11 @@
         }
 
         return;
-      } else if ($(e.target).hasClass('fa-check-circle-o')) {
+      } else if ($(e.target).hasClass('fa-check-circle')) {
+        $5WObjectType.rebuildSearchIndexView();
+
         $(e.target).closest('._5w_field_editing').removeClass('_5w_field_editing');
-      } else if ($(e.target).hasClass('fa-pencil')) {
+      } else if ($(e.target).hasClass('fa-edit')) {
         this.startEditing();
       } else if ($(e.target).hasClass('fa-check') || $(e.target).hasClass('fa-times')) {
         if ($(e.target).hasClass('fa-check')) {
@@ -915,7 +962,7 @@
   $5WViewerView.prototype.startEditing = function () {
     this.isEditing = true;
 
-    $('._5w_header .fa-pencil', this.el).addClass('hidden');
+    $('._5w_header .fa-edit', this.el).addClass('hidden');
 
     $('._5w_header ._5w_bicon_bar.action', this.el).addClass('hidden');
     $('._5w_header ._5w_bicon_bar.editing', this.el).removeClass('hidden');
@@ -943,7 +990,7 @@
   };
 
   $5WViewerView.prototype.endEditing = function (refresh) {
-    $('._5w_header .fa-pencil', this.el).removeClass('hidden');
+    $('._5w_header .fa-edit', this.el).removeClass('hidden');
 
     $('._5w_header ._5w_bicon_bar.editing', this.el).addClass('hidden');
     $('._5w_header ._5w_bicon_bar.action', this.el).removeClass('hidden');
@@ -1948,7 +1995,18 @@
 
       var pf = _this.propertiesForm();
       _this.objectType.proto.sort_type = pf.sort_type.value;
-      _this.objectType.proto.display_expression = pf.display_expression.value;
+
+      var de;
+
+      try {
+        de = JSON.parse(pf.display_expression.value);
+      } catch (e) {
+        alert('bad display expresssion JSON:' + e);
+
+        return;
+      }
+
+      _this.objectType.proto.display_expression = de;
 
       _this.objectType.save()
         .done(function () {
@@ -1974,6 +2032,7 @@
       fev.edit(_this.objectType.type, e.detail.itemText);
 
       _this.$5w.overlayPane(fev.el);
+      _this.dirty = true;
     }
 
     handleListChange(e) {
@@ -2029,12 +2088,16 @@
 
       return _this._dirty;
     }
+
+    get objectType() {
+      return $5WObjectType.getType(this.type);
+    }
   }
 
   $5WPrototypeEditorView.prototype.loadType = function (type) {
     var _this = this;
 
-    _this.objectType = $5WObjectType.getType(type);
+    _this.type = type;
 
     var label = _this.objectType.displayName();
 
@@ -2048,7 +2111,8 @@
 
     var pf = _this.propertiesForm();
     pf.sort_type.value = _this.objectType.proto.sort_type || 'byKey';
-    pf.display_expression.value = _this.objectType.proto.display_expression || '';
+    var de = _this.objectType.proto.display_expression;
+    pf.display_expression.value = de ? JSON.stringify(de) : '[]';
 
     pf.oninput =
     pf.onchange = function (e) {
@@ -2667,13 +2731,18 @@
     return av.length == 1 ? av[0] : av;
   };
 
-  $5W.prototype.fetchView = function (viewName, startkey, limit, endkey) {
+  $5W.prototype.fetchView = function (viewName, startkey, limit, endkey, designDoc) {
+    designDoc = designDoc || "_design/5w";
     var vp = {};
 
     if (typeof viewName === 'object') {
       $.extend(vp, viewName);
       viewName = vp.viewName;
       delete vp.viewName;
+      if (vp.hasOwnProperty('designDoc')) {
+        designDoc = vp.designDoc;
+        delete vp.designDoc;
+      }
     } else {
       vp.startkey = startkey;
       vp.limit = limit;
@@ -2693,16 +2762,29 @@
     });
 
     return $.ajax({
-      url: this.dburl + '/_design/5w/_view/' + viewName,
+      url: this.dburl + '/' + designDoc + '/_view/' + viewName,
       data: vp,
       dataType: 'json'
     });
   };
 
   $5W.prototype.search = function (ss) {
+    function filterDups(rows) {
+      var s = new Set();
+
+      return rows.filter(row => {
+        if (s.has(row.id)) {
+          return false;
+        }
+
+        s.add(row.id);
+
+        return true;
+      });
+    }
     var sra = callReturnAll(this.extensions, 'search', [ss]);
 
-    var va = {viewName:"search", startkey:ss.toLowerCase(), endkey:ss.toUpperCase() + '\u9999'};
+    var va = {viewName:"5wo_search", designDoc:"_design/5ws", startkey:ss.toLowerCase(), endkey:ss.toUpperCase() + '\u9999'};
     var vap = this.fetchView(va);
     sra.push(vap);
 
@@ -2723,9 +2805,9 @@
               return a.key.localeCompare(b.key);
             });
 
-            scd.resolve(rows);
+            scd.resolve(filterDups(rows));
           } else {
-            scd.resolve(args[0].rows);
+            scd.resolve(filterDups(args[0].rows));
           }
         })
       .fail(function () {

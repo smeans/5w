@@ -9,6 +9,18 @@ class MainApp {
     $5w.login();
   }
 
+  isUIBusy() {
+  return this._uibusy > 0;
+  }
+
+  enterUIBusy() {
+    this._uibusy++;
+  }
+
+  leaveUIBusy() {
+    this._uibusy--;
+  }
+
   bindEvents() {
     $(document).on('5w_login', this.on5wLogin);
     $(document).on('5w_not_logged_in', this.on5wNotLoggedIn);
@@ -16,6 +28,7 @@ class MainApp {
     $(document).on('5w_logout', this.on5wLogout);
 
     $(document).on('5w_open_menu', this.on5wOpenMenu);
+    $(document).on('5w_open_object', this.on5wOpenObject);
 
     var mmh = new Hammer($('nav')[0]);
     mmh.on('tap', this.onMainMenuTap);
@@ -79,6 +92,35 @@ class MainApp {
           $5w.pushPane(v.el);
         } break;
       }
+    }
+  }
+
+  on5wOpenObject(e, id, method) {
+    if (theApp.isUIBusy() || $('._5w ._5w_view_viewer._5w_active_pane[data-id=\'' + id + '\']').length) {
+      return;
+    }
+
+    theApp.enterUIBusy();
+    var ov = $('._5w ._5w_view_viewer[data-id=\'' + id + '\']');
+    if (ov.length) {
+      $(ov).remove();
+      $5w.pushPane(ov[0]);
+      theApp.leaveUIBusy();
+    } else {
+      var v = $5w.makeView($('<div/>'), 'viewer');
+      $(v.el).attr('data-id', id);
+      v.loadObject(id)
+        .done(function () {
+            if (method == 'jump') {
+              $5w.popPane();
+            }
+            $5w.pushPane(v.el);
+            theApp.leaveUIBusy();
+          })
+        .fail(function () {
+            alert('error loading document, please try again later');
+            theApp.leaveUIBusy();
+          });
     }
   }
 

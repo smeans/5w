@@ -220,7 +220,8 @@ function evalJsonTemplate(t, o) {
 
   var op = '$all';
   if (t[0].indexOf('$') == 0) {
-  	op = t.shift();
+  	op = t[0];
+    t = t.slice(1);
   }
 
   var ra = [];
