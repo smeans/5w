@@ -91,6 +91,16 @@ class MainApp {
           var v = $5w.makeView($('<div/>'), 'prototype_list');
           $5w.pushPane(v.el);
         } break;
+
+        default: {
+          var ot = $(e.target).attr('data-type');
+
+          if (ot) {
+            theApp.hideMenu();
+
+            theApp.newObject(ot);
+          }
+        } break;
       }
     }
   }
@@ -124,6 +134,19 @@ class MainApp {
     }
   }
 
+  newObject(type) {
+    var ov = $('<div/>');
+    var v = $5w.makeView(ov, 'viewer');
+    var pao = $5w.makeNewObject(type);
+
+    v.loadObject(pao)
+      .done(function () {
+        $5w.pushPane(v.el);
+        v.startEditing();
+      });
+  }
+
+
   viewProfile(type) {
     var ov = $('<div/>');
     var v = $5w.makeView(ov, 'viewer');
@@ -151,6 +174,15 @@ class MainApp {
     var view = viewObject.el;
 
     $(view).addClass('menuView');
+
+    $('nav ul.new_items').empty();
+
+    var otl = $5w.rootObjectTypes();
+    if (otl) {
+      otl.forEach(ot => {
+        $('nav ul.new_items').append('<li data-type="' + ot + '">new ' + titleCaseToHuman(ot) + '</li>');
+      });
+    }
 
     $('.content_layer, nav').addClass('active');
   }

@@ -92,6 +92,10 @@ function docToNum(v) {
   return v;
 }
 
+function contentToString(el) {
+  return el.innerText.trim();
+}
+
 function jsonToXML(o) {
   var doc = document.implementation.createDocument(null, 'doc');
 

@@ -98,12 +98,16 @@ nav ul {
   margin: 0;
   padding: 0;
   color: #267A86;
-  margin-top: 1em;
 }
 
 nav li {
   padding: .5em;
   background-color: #fff;
+}
+
+nav li:hover {
+  background-color: #2aac5a;
+  color: #fff;
 }
 
 nav li i {
