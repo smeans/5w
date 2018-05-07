@@ -8,7 +8,7 @@
  * Color Explanations...
  *
  * #29AC5B --- Main Green, header background, font colors, and more!
- * #095740 --- Darker Gree, I'm not sure where I want to use this... might start eliminating.
+ * #095740 --- Darker Green, I'm not sure where I want to use this... might start eliminating.
  * #b3b3b3 --- Light Grey used on the bottom border of the tabber, and background of the feed items
  *
  * Fonts...
@@ -288,6 +288,8 @@ img._5w_type_icon {
 }
 
 ._5w_search_list li img {
+  height: 24px;
+  width: 24px;
   float:left;
   padding:0;
   margin:8px 0;

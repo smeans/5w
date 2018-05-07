@@ -3,13 +3,11 @@ function (head, req) {
     css = '';
 
     while (row = getRow()) {
+      css += '._5w_type_' + row.key + ' img._5w_type_icon, ';
       css += 'li._5w_type_' + row.key + ' img {\n';
-      css += '  width: 24px;\n';
-      css += '  height: 24px;\n';
       css += '  background-image: url("' + row.value + '");\n';
       css += '  background-repeat: no-repeat;\n';
-      css += '  vertical-align: middle;\n';
-
+      css += '  background-size: contain;\n';
       css += '}\n';
     }
 
