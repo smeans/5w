@@ -132,6 +132,7 @@
       <p><label><i class="_5w_scope scope_type"></i>Type</label>
         <select class="prop" name="type">
           <option>string</option>
+          <option>markdown</option>
           <option>choice</option>
           <option>boolean</option>
           <option>currency</option>
@@ -167,7 +168,7 @@
       <div class="simple_modal_content"></div>
     </div>
   </div>
-  <div class="attach_image _5w_popup_form">
+  <div class="attach_image _5w_popup_form _5w_view_attach">
     <div class="preview">
       <img src="img/photo-placeholder.png"/>
       <progress class="hidden"></progress>
@@ -177,6 +178,18 @@
           <i class="fa fa-camera _5w_bicon">&nbsp;</i>&nbsp;
           <i class="fa fa-picture-o _5w_bicon">&nbsp;</i>
       </p>
+      <p>
+        <button type="button" class="attach" disabled="disabled">attach</button>
+        <button type="button">cancel</button>
+      </p>
+    </div>
+  </div>
+  <div class="attach_document _5w_popup_form _5w_view_attach">
+    <div class="preview">
+      <input type="file" name="file"/>
+      <progress class="hidden"></progress>
+    </div>
+    <div class="control">
       <p>
         <button type="button" class="attach" disabled="disabled">attach</button>
         <button type="button">cancel</button>

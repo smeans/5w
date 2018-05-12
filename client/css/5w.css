@@ -467,10 +467,9 @@ div._5w_view_field {
   color:#29AC5B;
 }
 
-
-
-
-
+._5w_field_type_markdown>div {
+  white-space: pre-wrap;
+}
 
 /*
  * POPUP FORM = No Touch Yet, DG
@@ -695,14 +694,14 @@ button:focus{
 
 }
 /* 5_w popup new css end here */
-._5w_view_attach_image {
+._5w_view_attach {
   height: 100%;
   width: 100%;
   background:#27ae60;
   text-align: center;
 }
 
-._5w_view_attach_image .preview {
+._5w_view_attach .preview {
   width: 100%;
   height: 70%;
   vertical-align: middle;
@@ -720,7 +719,7 @@ button:focus{
   margin: auto;
 }
 
-._5w_view_attach_image .preview progress {
+._5w_view_attach .preview progress {
   bottom: 0;
   left: 0;
   right: 0;
@@ -728,12 +727,12 @@ button:focus{
   margin: auto;
 }
 
-._5w_view_attach_image .control {
+._5w_view_attach .control {
   width: 100%;
   height: 30%;
 }
 
-._5w_view_attach_image button {
+._5w_view_attach button {
   font-size: 100%;
 }
 

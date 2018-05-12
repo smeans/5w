@@ -43,7 +43,7 @@
     }
 
     static rebuildSearchIndexView() {
-      var mapFunction = "function (r){function e(r,e){emit(r,e);var t=r.trim().split(\" \");t.shift();for(var n=0;n<t.length;n++)emit(t[n].trim(),e)}if(Array.prototype.reduce||Object.defineProperty(Array.prototype,\"reduce\",{value:function(r){if(null===this)throw new TypeError(\"Array.prototype.reduce called on null or undefined\");if(\"function\"!=typeof r)throw new TypeError(r+\" is not a function\");var e,t=Object(this),n=t.length>>>0,i=0;if(arguments.length>=2)e=arguments[1];else{for(;i<n&&!(i in t);)i++;if(i>=n)throw new TypeError(\"Reduce of empty array with no initial value\");e=t[i++]}for(;i<n;)i in t&&(e=r(e,t[i],i,t)),i++;return e}}),r.hasOwnProperty(\"ObjectType\")&&!r.IsDeleted){var t={SEARCH:\"INFO\"}[r.ObjectType];if(t){var n=r._id;if(t.display_expression&&(n=function r(e,t){if(e.constructor!==Array)return e;if(!(e.length<1)){if(1==e.length)return t[e[0]];var n=\"$all\";0==e[0].indexOf(\"$\")&&(n=e[0],e=e.slice(1));for(var i=[],o=0;o<e.length;o++){var l=e[o];i.push(r(l,t))}switch(n){case\"$first\":return i.reduce(function(r,e){return r||e});case\"$any\":return i.join(\"\");default:case\"$all\":var a=i.reduce(function(r,e){return null==r||null==e?void 0:r+e},\"\");return null==a?\"\":a}}}(t.display_expression,r)||r._id)&&e(n,n),t.searchFields)for(var i=0;i<t.searchFields.length;i++){var o=r[t.searchFields[i]];o&&e(o,n)}}}}";
+      var mapFunction = "function(e){function r(e,r){emit(e,r);var t=e.trim().split(\" \");t.shift();for(var n=0;n<t.length;n++)emit(t[n].trim(),r)}if(Array.prototype.reduce||Object.defineProperty(Array.prototype,\"reduce\",{value:function(e){if(null===this)throw new TypeError(\"Array.prototype.reduce called on null or undefined\");if(\"function\"!=typeof e)throw new TypeError(e+\" is not a function\");var r,t=Object(this),n=t.length>>>0,i=0;if(arguments.length>=2)r=arguments[1];else{for(;i<n&&!(i in t);)i++;if(i>=n)throw new TypeError(\"Reduce of empty array with no initial value\");r=t[i++]}for(;i<n;)i in t&&(r=e(r,t[i],i,t)),i++;return r}}),e.hasOwnProperty(\"ObjectType\")&&!e.IsDeleted){var t={SEARCH:\"INFO\"}[e.ObjectType];if(t){var n=e._id;if(t.display_expression&&(n=function e(r,t){if(r.constructor!==Array)return r;if(!(r.length<1)){if(1==r.length)return t[r[0]];var n=\"$all\";0==r[0].indexOf(\"$\")&&(n=r[0],r=r.slice(1));for(var i=[],o=0;o<r.length;o++){var l=r[o];i.push(e(l,t))}switch(n){case\"$first\":return i.reduce(function(e,r){return e||r});case\"$any\":return i.join(\"\");default:case\"$all\":var a=i.reduce(function(e,r){return null==e||null==r?void 0:e+r},\"\");return null==a?\"\":a}}}(t.display_expression,e)||e._id)&&r(n,n),r(e.ObjectType,n),t.searchFields)for(var i=0;i<t.searchFields.length;i++){var o=e[t.searchFields[i]];o&&r(o,n)}}}}";
       var designDoc = {
         "_id": "_design/5ws",
         "views": {
@@ -83,7 +83,10 @@
                     type: 'PUT',
                     url: $5w.dburl + '/' + designDoc._id,
                     data: JSON.stringify(designDoc),
-                    dataType: 'json'
+                    dataType: 'json',
+                    error: function (jqXHR, textStatus, errorThrown) {
+                      alert(textStatus + ': ' + errorThrown + '\n' + jqXHR.responseText);
+                    }
                   });
           });
       });
@@ -435,9 +438,9 @@
   /*[
       </method>
 
-      <method name="addAttachment">
+      <method name="addURLAttachment">
   ]*/
-  $5WObject.prototype.addAttachment = function (fileURL) {
+  $5WObject.prototype.addURLAttachment = function (fileURL) {
     var _this = this;
 
     if (_this.request) {
@@ -476,6 +479,49 @@
   };
   /*[
       </method>
+
+      <method name="addFileAttachment">
+  ]*/
+  $5WObject.prototype.addFileAttachment = function (file) {
+    var _this = this;
+
+    if (_this.request) {
+      var err = new $.Deferred();
+      err.reject('Object is busy.');
+      return err;
+    }
+    _this.request = new $.Deferred();
+
+    var mimeType = getMimeType(file.name);
+
+    var url = _this.url() + '/' + file.name + '?rev=' + _this.data._rev;
+    $.ajax({
+      type: 'PUT',
+      url,
+      data: file,
+      processData: false,
+      contentType: false,
+      headers: {
+        'Content-Type': mimeType
+      }
+    })
+      .done(function(data) {
+        console.log(data);
+
+        _this.request.resolve();
+        delete _this.request;
+        _this.data.rev = data.rev;
+      })
+      .fail(function () {
+        alert(error);
+        _this.request.reject(error);
+        delete _this.request;
+      });
+
+    return _this.request.promise();
+  };
+  /*[
+      </method>
     </class>
 
     <class name="$5WView" abstract="yes">
@@ -491,7 +537,14 @@
     this.el = el;
     $(el).data('$5wview', this);
     $(el).addClass('_5w_view_' + type);
-    $(el).append($('.' + type, $5w.html).html());
+    var template = $('.' + type, $5w.html)[0];
+    if (!template) {
+      return;
+    }
+    $(el).each(function () {
+      this.classList.add(...template.classList);
+    });
+    $(el).append(template.innerHTML);
   };
   /*[
     </class>
@@ -1015,6 +1068,7 @@
     var cm = $($('.viewer_menu', _this.$5w.html).html());
 
     $('ul', cm).append('<li>attach image</li>');
+    $('ul', cm).append('<li>attach document</li>');
 
     $.each(proto.allow_create, function () {
       var type = this;
@@ -1064,7 +1118,14 @@
       var av = $5w.makeView($('<div/>'), 'attach_image');
       av.setObject(_this.$5wo);
       $5w.overlayPane(av.el);
+    } else if ($(e.target).text() == 'attach document') {
+      e.preventDefault();
+
+      var av = $5w.makeView($('<div/>'), 'attach_document');
+      av.setObject(_this.$5wo);
+      $5w.overlayPane(av.el);
     }
+
   };
 
   $5WViewerView.prototype.addRelated = function () {
@@ -1208,7 +1269,7 @@
           var ul = $('<ul/>');
           $.each(o[fieldName], function (k, v) {
             $(ul).append('<li><a data-href="'+ _this.$5w.getObjectUrl(o._id) + '/' + k + '">'
-                + '<img src="http://mimecons.com/24/' + v.content_type + '"/>'
+                + '<img src="https://mimecons.com/24/' + v.content_type + '"/>'
                 + k + '</a></li>'
             );
           });
@@ -1402,7 +1463,7 @@
 
     var href = $(e.target).attr('data-href');
     if (href) {
-      cordova.InAppBrowser.open(href, '_system');
+      window.open(href, '5w_attachments');
     }
 
     if (!o[this.fieldName]) {
@@ -2266,7 +2327,7 @@
         if (_this.$5wo) {
           _this.$5w.showBusy();
 
-          var aap = _this.$5wo.addAttachment($('.preview img', _this.el).attr('src'));
+          var aap = _this.$5wo.addURLAttachment($('.preview img', _this.el).attr('src'));
 
           aap.then(function () {
               $('progress', _this.el).addClass('hidden');
@@ -2311,6 +2372,66 @@
         }
       }, cargs);
   };
+  /*[
+    </class>
+
+    <class name="$5WAttachImageView">
+  ]*/
+  class $5WAttachDocumentView {
+    constructor($5w, el, type) {
+      var _this = this;
+
+      $5WView.call(this, $5w, el, type);
+
+      $(el).submit(function () {
+        return false;
+      });
+
+      $('input[type=file]', el).change(function (e) {
+        $('button.attach', el)[0].disabled = e.target.files.length == 0;
+      });
+      $('button', el).click(function (e) { _this.handleClick(e); });
+    }
+
+    setObject($5wo) {
+      this.$5wo = $5wo;
+    }
+
+    handleClick(e) {
+      var _this = this;
+      var camera = navigator.camera;
+      var source;
+
+      switch ($(e.target).text()) {
+        case 'attach': {
+          var file = $('input[type=file]', _this.el)[0].files[0];
+
+          if (file && _this.$5wo) {
+            _this.$5w.showBusy();
+
+            var aap = _this.$5wo.addFileAttachment(file);
+
+            aap.then(function () {
+                $('progress', _this.el).addClass('hidden');
+
+                _this.$5w.hideBusy();
+
+                _this.$5w.popPane();
+              });
+
+            $('progress', _this.el).removeClass('hidden');
+            aap.fileTransfer.onprogress = function (pe) {
+              $('progress', _this.el).attr('value', pe.loaded/pe.total);
+            };
+          }
+        } break;
+
+        case 'cancel': {
+          _this.$5w.popPane();
+        } break;
+      }
+    }
+  }
   /*[
     </class>
 
@@ -2657,6 +2778,22 @@
     return 'user_info' in this;
   };
 
+  $5W.prototype.refreshSession = function () {
+    var _this = this;
+    $.ajax({
+      type: 'GET',
+      url: _this.dburl + '/_session',
+    })
+      .done(function (data) {
+        if (!(data.userCtx && data.userCtx.name)) {
+          if (_this.isLoggedIn()) {
+            delete _this.user_info;
+            $(document).trigger('5w_logout');
+          }
+        }
+      });
+  }
+
   $5W.prototype.isAdmin = function () {
     return 'user_info' in this
       && (
@@ -2741,6 +2878,7 @@
       , 'doc_lookup':$5WDocLookupView
       , 'date_picker':$5WDatePickerView
       , 'attach_image':$5WAttachImageView
+      , 'attach_document':$5WAttachDocumentView
       , 'scope':$5WScopeView, 'field':$5WFieldView
       , 'field_edit':$5WFieldEditView, 'doc_slug':$5WDocSlugView
       , 'activity':$5WActivityView, 'activity_list':$5WActivityListView

@@ -21,6 +21,28 @@ class MainApp {
     this._uibusy--;
   }
 
+  startSessionRefresh() {
+    var _this = this;
+    if (_this._refreshTimer) {
+      return;
+    }
+
+    _this._refreshTimer = setInterval(function () {
+      if ($5w.isLoggedIn()) {
+        $5w.refreshSession();
+      } else {
+        _this.stopSessionRefresh();
+      }
+    }, 60000);
+  }
+
+  stopSessionRefresh() {
+    if (this._refreshTimer) {
+      clearInterval(this._refreshTimer);
+      delete this._refreshTimer;
+    }
+  }
+
   bindEvents() {
     $(document).on('5w_login', this.on5wLogin);
     $(document).on('5w_not_logged_in', this.on5wNotLoggedIn);
@@ -49,6 +71,8 @@ class MainApp {
     } else {
       $5w.popPane();
     }
+
+    theApp.startSessionRefresh();
   }
 
   on5wNotLoggedIn() {
@@ -66,6 +90,8 @@ class MainApp {
   on5wLogout() {
     $('.logged_in').removeClass('logged_in');
     $('.is_admin').removeClass('is_admin');
+
+    //location.reload();
   }
 
   on5wOpenMenu(e, viewObject) {
@@ -90,6 +116,12 @@ class MainApp {
 
           var v = $5w.makeView($('<div/>'), 'prototype_list');
           $5w.pushPane(v.el);
+        } break;
+
+        case 'logout': {
+          $5w.logout();
+
+          theApp.hideMenu();
         } break;
 
         default: {

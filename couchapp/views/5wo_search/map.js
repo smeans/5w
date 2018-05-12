@@ -136,6 +136,8 @@ function (doc) {
     }
   }
 
+  emitValue(doc.ObjectType, display_name);
+
   if (tso.searchFields) {
     for (var i = 0; i < tso.searchFields.length; i++) {
       var v = doc[tso.searchFields[i]];
