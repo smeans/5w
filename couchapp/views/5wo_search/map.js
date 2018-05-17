@@ -101,6 +101,15 @@ function (doc) {
       return ra.join('');
     }
 
+    case '$elide': {
+      var t = ra.join('');
+      if (t.length < 70) {
+        return t;
+      }
+      t = t.substr(0, 70);
+      return t.substr(0, t.search(/\s[^\s]*$/)) + '...';
+    }
+
     default:
     case '$all': {
         var r = ra.reduce(function (a, c) { return (a == undefined || c == undefined) ? undefined : a + c; }, '');

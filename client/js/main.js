@@ -52,6 +52,13 @@ class MainApp {
     $(document).on('5w_open_menu', this.on5wOpenMenu);
     $(document).on('5w_open_object', this.on5wOpenObject);
 
+    $(document).on('5w_launch_address', function (e, ea) { theApp.on5wLaunchAddress(e, ea); });
+    $(document).on('5w_launch_phone', function (e, ea) { theApp.on5wLaunchPhone(e, ea); });
+    $(document).on('5w_launch_mobile', function (e, ea) { theApp.on5wLaunchPhone(e, ea); });
+    $(document).on('5w_launch_sms', function (e, ea) { theApp.on5wLaunchSms(e, ea); });
+
+    $(document).on('5w_launch_email', this.on5wLaunchEmail);
+
     var mmh = new Hammer($('nav')[0]);
     mmh.on('tap', this.onMainMenuTap);
 
@@ -166,6 +173,22 @@ class MainApp {
     }
   }
 
+  on5wLaunchAddress(e, ea) {
+    theApp.launchActivity(e, ea, 'VisitActivity', 'Visited ' + ea.$5wo.displayName() + '.');
+  }
+
+  on5wLaunchSms(e, ea) {
+    theApp.launchActivity(e, ea, 'SMSActivity', 'Texted number ' + ea.phone + '.');
+  }
+
+  on5wLaunchPhone(e, ea) {
+    theApp.launchActivity(e, ea, 'PhoneActivity', 'Used number ' + ea.phone + '.');
+  }
+
+  on5wLaunchEmail(e, ea) {
+    theApp.launchActivity(e, ea, 'EmailActivity', 'Emailed ' + ea.email + '.');
+  }
+
   newObject(type) {
     var ov = $('<div/>');
     var v = $5w.makeView(ov, 'viewer');
@@ -178,6 +201,20 @@ class MainApp {
       });
   }
 
+  launchActivity(e, ea, type, note) {
+    var ov = $('<div/>');
+    var v = $5w.makeView(ov, 'viewer');
+    var pao = $5w.makeNewObject(type);
+    pao.IsActivity = true;
+    pao.TargetId = ea.$5wo.id();
+    pao.Note = note;
+
+    v.loadObject(pao)
+      .done(function () {
+        $5w.pushPane(v.el);
+        v.startEditing();
+      });
+  }
 
   viewProfile(type) {
     var ov = $('<div/>');

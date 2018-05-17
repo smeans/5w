@@ -209,6 +209,15 @@ function toArray(llo) {
   return [].slice.call(llo);
 }
 
+function elideString(s, l) {
+  if (s.length < l) {
+    return s;
+  }
+
+  s = s.substr(0, l);
+  return s.substr(0, s.search(/\s[^\s]*$/)) + '...';
+}
+
 function evalJsonTemplate(t, o) {
   if (t.constructor !== Array) {
   	return t;
@@ -241,6 +250,15 @@ function evalJsonTemplate(t, o) {
 
   case '$any': {
   	return ra.join('');
+  }
+
+  case '$elide': {
+    var t = ra.join('');
+    if (t.length < 70) {
+      return t;
+    }
+    t = t.substr(0, 70);
+    return t.substr(0, t.search(/\s[^\s]*$/)) + '...';
   }
 
   default:

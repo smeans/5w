@@ -43,7 +43,7 @@
     }
 
     static rebuildSearchIndexView() {
-      var mapFunction = "function(e){function r(e,r){emit(e,r);var t=e.trim().split(\" \");t.shift();for(var n=0;n<t.length;n++)emit(t[n].trim(),r)}if(Array.prototype.reduce||Object.defineProperty(Array.prototype,\"reduce\",{value:function(e){if(null===this)throw new TypeError(\"Array.prototype.reduce called on null or undefined\");if(\"function\"!=typeof e)throw new TypeError(e+\" is not a function\");var r,t=Object(this),n=t.length>>>0,i=0;if(arguments.length>=2)r=arguments[1];else{for(;i<n&&!(i in t);)i++;if(i>=n)throw new TypeError(\"Reduce of empty array with no initial value\");r=t[i++]}for(;i<n;)i in t&&(r=e(r,t[i],i,t)),i++;return r}}),e.hasOwnProperty(\"ObjectType\")&&!e.IsDeleted){var t={SEARCH:\"INFO\"}[e.ObjectType];if(t){var n=e._id;if(t.display_expression&&(n=function e(r,t){if(r.constructor!==Array)return r;if(!(r.length<1)){if(1==r.length)return t[r[0]];var n=\"$all\";0==r[0].indexOf(\"$\")&&(n=r[0],r=r.slice(1));for(var i=[],o=0;o<r.length;o++){var l=r[o];i.push(e(l,t))}switch(n){case\"$first\":return i.reduce(function(e,r){return e||r});case\"$any\":return i.join(\"\");default:case\"$all\":var a=i.reduce(function(e,r){return null==e||null==r?void 0:e+r},\"\");return null==a?\"\":a}}}(t.display_expression,e)||e._id)&&r(n,n),r(e.ObjectType,n),t.searchFields)for(var i=0;i<t.searchFields.length;i++){var o=e[t.searchFields[i]];o&&r(o,n)}}}}";
+      var mapFunction = "function(e){function r(e,r){emit(e,r);var t=e.trim().split(\" \");t.shift();for(var n=0;n<t.length;n++)emit(t[n].trim(),r)}if(Array.prototype.reduce||Object.defineProperty(Array.prototype,\"reduce\",{value:function(e){if(null===this)throw new TypeError(\"Array.prototype.reduce called on null or undefined\");if(\"function\"!=typeof e)throw new TypeError(e+\" is not a function\");var r,t=Object(this),n=t.length>>>0,i=0;if(arguments.length>=2)r=arguments[1];else{for(;i<n&&!(i in t);)i++;if(i>=n)throw new TypeError(\"Reduce of empty array with no initial value\");r=t[i++]}for(;i<n;)i in t&&(r=e(r,t[i],i,t)),i++;return r}}),e.hasOwnProperty(\"ObjectType\")&&!e.IsDeleted){var t={SEARCH:\"INFO\"}[e.ObjectType];if(t){var n=e._id;if(t.display_expression&&(n=function e(r,t){if(r.constructor!==Array)return r;if(!(r.length<1)){if(1==r.length)return t[r[0]];var n=\"$all\";0==r[0].indexOf(\"$\")&&(n=r[0],r=r.slice(1));for(var i=[],o=0;o<r.length;o++){var l=r[o];i.push(e(l,t))}switch(n){case\"$first\":return i.reduce(function(e,r){return e||r});case\"$any\":return i.join(\"\");case\"$elide\":return(r=i.join(\"\")).length<70?r:(r=r.substr(0,70)).substr(0,r.search(/\s[^\s]*$/))+\"...\";default:case\"$all\":var a=i.reduce(function(e,r){return null==e||null==r?void 0:e+r},\"\");return null==a?\"\":a}}}(t.display_expression,e)||e._id)&&r(n,n),r(e.ObjectType,n),t.searchFields)for(var i=0;i<t.searchFields.length;i++){var o=e[t.searchFields[i]];o&&r(o,n)}}}}";
       var designDoc = {
         "_id": "_design/5ws",
         "views": {
@@ -811,7 +811,7 @@
 
     var tp = $5WObjectType.getType(_this.$5wo.type());
 
-    if (tp.getProto().allow_create.length) {
+    if (tp.getProto() && tp.getProto().allow_create.length) {
       $(ab).append('<div class="_5w_bicon fa fa-plus flyout_parent">&nbsp;</div>');
     }
   };
@@ -1477,7 +1477,7 @@
 
         en = '5w_launch_url';
         ea.url = url;
-        cordova.InAppBrowser.open(url, '_system');
+        window.open(url, '_system');
       } break;
 
       case 'physical_address': {
@@ -1486,20 +1486,20 @@
 
         if (e.target.tagName != 'I') {
           var url = 'http://maps.apple.com/?q=' + encodeURIComponent(ea.address);
-          cordova.InAppBrowser.open(url, '_system');
+          window.open(url, '_system');
         }
       } break;
 
       case 'email': {
         en = '5w_launch_email';
         ea.email = o[this.fieldName];
-        cordova.InAppBrowser.open('mailto:' + encodeURI(o[this.fieldName]), '_system');
+        window.open('mailto:' + encodeURI(o[this.fieldName]), '_system');
       } break;
 
       case 'phone': {
         en = '5w_launch_phone';
         ea.phone = o[this.fieldName];
-        cordova.InAppBrowser.open('tel:' + encodeURI(o[this.fieldName]), '_system');
+        window.open('tel:' + encodeURI(o[this.fieldName]), '_system');
       } break;
 
       case 'mobile': {
@@ -1507,10 +1507,10 @@
 
         if ($(e.target).hasClass('fa-comment-o')) {
           en = '5w_launch_sms';
-          cordova.InAppBrowser.open('sms:' + encodeURI(o[this.fieldName]), '_system');
+          window.open('sms:' + encodeURI(o[this.fieldName]), '_system');
         } else {
           en = '5w_launch_mobile';
-          cordova.InAppBrowser.open('tel:' + encodeURI(o[this.fieldName]), '_system');
+          window.open('tel:' + encodeURI(o[this.fieldName]), '_system');
         }
       } break;
     }
