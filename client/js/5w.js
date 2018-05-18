@@ -840,7 +840,7 @@
 
     $('._5w_container.related', _this.el).empty();
     $.each(rows, function () {
-      var id = this.id;
+      var id = this.value;
 
       if (id in idd) {
         return;
