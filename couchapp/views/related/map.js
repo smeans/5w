@@ -9,14 +9,14 @@ function (doc) {
   }
 
   for (var key in doc) {
-    if (doc.hasOwnProperty(key) && endsWith(key, 'Id')) {
+    if (doc.hasOwnProperty(key) && endsWith(key, 'Id') && doc._id != doc[key]) {
       emit(doc._id, doc[key]);
       emit(doc[key], doc._id);
     }
   }
 
   if ('$5w_related' in doc) {
-    var ra= doc.$5w_related;
+    var ra = doc.$5w_related;
 
     for (var i = 0; i < ra.length; i++) {
       emit(doc._id, ra[i]);

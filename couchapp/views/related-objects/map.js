@@ -37,14 +37,14 @@ function (doc) {
       if (Array.isArray(doc[key])) {
         for (var i = 0; i < doc[key].length; i++) {
           var docId = doc[key][i];
-          if (isValidId(docId)) {
+          if (isValidId(docId) && docId != doc._id) {
             emit([doc._id, getType(docId)], {_id: docId});
             emit([docId, getType(doc._id)], {_id: doc._id});
           }
         }
       }
       else if (endsWith(key, 'Id')) {
-        if (isValidId(doc[key])) {
+        if (isValidId(doc[key]) && doc[key] != doc._id) {
           emit([doc._id, getType(doc[key])], {_id: doc[key]});
           emit([doc[key], getType(doc._id)], {_id: doc._id});
         }
