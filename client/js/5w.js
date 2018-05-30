@@ -2752,23 +2752,17 @@
         username = data.name;
 
         _this.user_info = data;
-        _this.fetchView('users', username, 1)
+        _this.fetchObject('User_' + username)
           .done(function (data, textStatus, jqXHR) {
               _this.hideBusy();
-              if (!data.rows.length) {
-                $(document).trigger('5w_login_fail',
-                  'No account found for \'' + username + '\'. Please contact your administrator.'
-                );
-              } else {
-                _this.user_info.doc_id = data.rows[0].id;
-                _this._loadConfig();
-              }
+              _this.user_info.doc_id = data._id;
+              _this._loadConfig();
             })
           .fail(function () {
             _this.hideBusy();
 
             $(document).trigger('5w_login_fail',
-              'An error occurred retrieving your user information. Please try again later.'
+              'No account found for \'' + username + '\'. Please contact your administrator.'
             );
           });
       });
