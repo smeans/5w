@@ -98,7 +98,7 @@ class MainApp {
     $('.logged_in').removeClass('logged_in');
     $('.is_admin').removeClass('is_admin');
 
-    //location.reload();
+    location.reload();
   }
 
   on5wOpenMenu(e, viewObject) {

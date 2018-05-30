@@ -122,7 +122,7 @@ function contentToString(el) {
 }
 
 function titleCaseToHuman(s) {
-  return s.replace(/([A-Z])/g, ' $1').trim()
+  return s.replace(/([A-Z](?=[^A-Z]))/g, ' $1').trim()
 }
 
 function findString(s, a) {

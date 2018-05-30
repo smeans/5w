@@ -174,7 +174,7 @@
   };
 
   $5WObjectType.prototype.displayName = function () {
-    return this.type.replace(/([A-Z])/g, " $1").trim();
+    return titleCaseToHuman(this.type);
   };
 
   $5WObjectType.prototype.isNew = function () {
