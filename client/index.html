@@ -126,9 +126,6 @@
   <link rel="stylesheet" href="css/style.css?v=1.0">
   <link rel="stylesheet" href="/data/_design/5w/_list/type-icon-css/type-icons">
 
-  <link rel="import" href="html/fwelements.html">
-  <link id="5w_templates" rel="import" href="html/5w.html">
-
   <!--[if lt IE 9]>
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
@@ -158,6 +155,579 @@
   <div class="resources hidden">
     <div class="login_error">
       <p></p>
+    </div>
+
+    <ph-components>
+      <template name="fw-button">
+        <style>
+        :host {
+          display: inline-block;
+          width: 1em;
+          height: 1em;
+          color: #fff;
+          background-color: #095740;
+          border-radius: 50%;
+          text-align: center;
+          vertical-align: middle;
+          line-height: 1em;
+        }
+        </style>
+        <span><content></content></span>
+      </template>
+
+      <template name="fw-ordered-list">
+        <style>
+          :host {
+            display: inline-block;
+          }
+
+          ul {
+            list-style: none;
+          }
+
+          :host(.allowReorder) li {
+            margin-left: 0;
+            padding-left: 1.5em;
+            text-indent: -1em;
+          }
+
+          :host(.allowReorder) li:before {
+            content: '\002630';
+            padding-right: .25em;
+          }
+
+          :host(.allowReorder) li.add:before {
+            content: '';
+          }
+
+          :host(.allowReorder) li.add {
+            margin-left: 0;
+            padding-left: 0;
+            text-indent: 0;
+          }
+
+          :host(.allowDelete) li:after {
+            font-weight: bold;
+            font-size: 110%;
+            content: '\0000D7';
+            color: #f00;
+            float: right;
+          }
+
+          :host(.allowDelete) li.add:after {
+            content: '';
+          }
+
+          [draggable=true] {
+              cursor: move;
+          }
+
+          li {
+            background-color: #2aac5a;
+            color: #fff;
+            margin: .25em;
+            padding: .25em;
+          }
+
+          li:hover {
+            opacity: .5;
+          }
+
+          li.add:hover {
+            opacity: 1.0;
+          }
+        </style>
+        <ul></ul>
+        <datalist id="addValues"></datalist>
+        <template>
+          <li class="add"><input type="text" list="addValues" required name="newItemText"/>
+            &nbsp;<fw-button name="add">+</fw-button></li>
+        </template>
+        <script>
+          class FwOrderedList extends PhElement {
+            connectedCallback() {
+              this.onclick = this.handleListClick;
+              this.ondragstart = this.handleDragStart;
+              this.ondragend = this.handleDragEnd;
+              this.ondragover = this.handleDragOver;
+              this.ondrag = this.handleDrag;
+              this.ondrop = this.handleDrop;
+              this.oninput = this.handleAddChange;
+              this.onchange = this.handleAddChange;
+            }
+
+            handleListClick(e) {
+              var t = e.composedPath()[0];
+              if (t.tagName  != 'LI' || t.classList.contains('add')) {
+                return false;
+              }
+
+              if (this.allowDelete) {
+                var rc = t.getBoundingClientRect();
+                if (e.clientX > (rc.left + rc.width)-rc.height) {
+                  t.parentNode.removeChild(t);
+                  this.dispatchEvent(new CustomEvent('listchanged', {bubbles: true}));
+
+                  return;
+                }
+              }
+
+              var itemText = t.innerText;
+              e.target.dispatchEvent(new CustomEvent('itemclicked', {bubbles: true, detail:{itemText}}));
+            }
+
+            handleDragStart(e) {
+              var src = e.composedPath()[0];
+
+              this.dragging = src;
+            }
+
+            handleDragEnd(e) {
+              var src = e.composedPath()[0];
+
+              delete this.dragging;
+            }
+
+            handleDragOver(e) {
+              if (this.dragging) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';  // See the section on the DataTransfer object.
+              }
+            }
+
+            handleDrag(e) {
+            }
+
+            handleDrop(e) {
+              if (!this.dragging) {
+                return false;
+              }
+
+              var lia = this.sqa('li');
+              var i = 0;
+
+              var positionChanged = false;
+
+              while (i < lia.length) {
+                var rc = lia[i].getBoundingClientRect();
+
+                if (e.clientY < rc.y + rc.height/2) {
+                  if (lia[i] != this.dragging) {
+                    lia[i].parentNode.insertBefore(this.dragging, lia[i]);
+                    positionChanged = true;
+                    break;
+                  }
+                }
+
+                i++;
+              }
+
+              delete this.dragging;
+
+              if (positionChanged) {
+                this.dispatchEvent(new CustomEvent('listchanged', {bubbles: true}));
+              }
+            }
+
+            handleAddChange(e) {
+              var src = e.composedPath()[0];
+              src.setCustomValidity('');
+
+              this.dispatchEvent(new CustomEvent('addinputchanged', {bubbles: true, detail: {input:src}}));
+            }
+
+            _resyncUI() {
+              this.allowAdd = this.allowAdd;
+              this.allowReorder = this.allowReorder;
+            }
+
+            set items(items) {
+              var ul = this.sq('ul');
+              ul.innerHTML = items.length ? '<LI>' + items.join('</LI><LI>') + '</LI>' : '';
+              this._resyncUI();
+            }
+
+            get items() {
+              var items = [];
+
+              this.sqa('ul li').forEach(i => {
+                if (!i.classList.contains('add')) {
+                  items.push(i.innerText);
+                }
+              });
+
+              return items;
+            }
+
+            set addDatalist(newValue) {
+              this._addDatalist = newValue;
+
+              var datalist = this.sq('datalist');
+
+              var html = '';
+              newValue.forEach(v => {
+                html += '<option value="' + v + '">';
+              });
+
+              datalist.innerHTML = html;
+            }
+
+            get addDatalist() {
+              return this._addDatalist;
+            }
+
+            set allowAdd(newValue) {
+              var _this = this;
+              _this._allowAdd = newValue;
+
+              if (_this._allowAdd) {
+                if (!_this.sq('li.add')) {
+                  var addItem = this.privateTemplate.querySelector('li.add').cloneNode(true);
+                  addItem.querySelector('fw-button').addEventListener('click', function (e) {
+                    var addInput = _this.sq('.add INPUT');
+                    var pattern = _this.getAttribute('pattern');
+                    if (pattern) {
+                      addInput.setAttribute('pattern', pattern);
+                    } else {
+                      addInput.removeAttribute('pattern');
+                    }
+
+                    var newItem = document.createElement('LI');
+
+                    if (_this.isAddValueValid()) {
+                      newItem.innerText = addInput.value;
+                      _this.listNode.insertBefore(newItem, this.closest('LI'));
+                      this.dispatchEvent(new CustomEvent('listchanged', {bubbles: true}));
+                      addInput.value = '';
+                      _this._resyncUI();
+                    } else {
+                      addInput.reportValidity();
+                    }
+                  });
+
+                  _this.listNode.appendChild(addItem);
+                }
+              } else {
+                var ail = toArray(_this.sqa('li.add'));
+                while (ail.length) {
+                  var ai = ail.pop();
+                  ai.parentNode.removeChild(ai);
+                }
+              }
+            }
+
+            get allowAdd() {
+              return this._allowAdd;
+            }
+
+            set allowReorder(newValue) {
+              if (newValue) {
+                this.classList.add('allowReorder');
+                this.sqa('li:not(.add)').forEach(li => li.draggable = true );
+              } else {
+                this.classList.remove('allowReorder');
+                this.sqa('li:not(.add)').forEach(li => li.draggable = false );
+              }
+            }
+
+            get allowReorder() {
+              return this.classList.contains('allowReorder');
+            }
+
+            set allowDelete(newValue) {
+              if (newValue) {
+                this.classList.add('allowDelete');
+              } else {
+                this.classList.remove('allowDelete');
+              }
+            }
+
+            get allowDelete() {
+              return this.classList.contains('allowDelete');
+            }
+
+            set allowDuplicates(newValue) {
+              this._allowDuplicates = newValue;
+            }
+
+            get allowDuplicates() {
+              return this._allowDuplicates;
+            }
+
+            get listNode() {
+              return this.sq('UL');
+            }
+
+            get validity() {
+              return _this.sq('.add INPUT').validity || {};
+            }
+
+            isAddValueValid() {
+              var _this = this;
+
+              var addInput = _this.sq('.add INPUT');
+
+              if (!addInput.checkValidity) {
+                return !!addInput.value.trim();
+              }
+
+              if (!this._allowDuplicates && this.items.indexOf(addInput.value.trim()) >= 0) {
+                addInput.setCustomValidity('duplicate items not allowed');
+
+                return false;
+              }
+
+              return addInput.checkValidity();
+            }
+          }
+        </script>
+      </template>
+    </ph-components>
+
+    <div id="5w_templates" class="_5w_templates">
+      <div class="login _5w_popup_form">
+        <form id="login_form">
+          <header class="_5w_popup_header">
+            <img src="img/5w-logo.png" alt="Login">
+          </header>
+          <h1>5w login</h1>
+          <div class="_5w_form-content">
+          		<div class="_5w_form-container">
+    			  <p><input type="text" name="user" class="_5w_username_input" placeholder="Username" autocorrect="off" autocapitalize="off" required/></p>
+    			  <p><input type="password" name="pass" class="_5w_password_input" placeholder="Password" required/></p>
+    			  <p><button type="submit" class="_5w_login-bt">login</button></p>
+          		</div>
+          </div>
+        </form>
+      </div>
+      <div class="browser">
+        <div class="_5w_header">
+          <div class="_5w_search_box">
+        		<input type="search" name="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>&nbsp;<i class="fa fa-search fa-5"></i>
+        		<i class="_5w_menu fa fa-bars"></i>
+      	  </div>
+          <ul class="tabbar">
+        		<li class="selected">search</li>
+        		<li>feed</li>
+            <li>my items</li>
+      	  </ul>
+        </div>
+        <div class="_5w_container search">
+        </div>
+        <div class="_5w_container feed hidden"></div>
+        <div class="_5w_container my_items hidden"></div>
+      </div>
+      <div class="page">
+        <div class="_5w_header">
+          <i class="_5w_bicon fa fa-arrow-up">&nbsp;</i>&nbsp;<span></span>
+        </div>
+        <div class="_5w_container">
+        </div>
+      </div>
+      <div class="viewer">
+        <div class="_5w_header">
+            <div class="info">
+              <i class="_5w_bicon fa fa-arrow-up">&nbsp;</i>&nbsp;
+              <i class="_5w_bicon _5w_done far fa-check-circle _5w_field_hidden">&nbsp;</i>
+              <i class="_5w_bicon fa fa-edit">&nbsp;</i>
+              <div class="_5w_bicon_bar editing hidden">
+                <i class="_5w_bicon fa fa-check _5w_true">&nbsp;</i>
+                <i class="_5w_bicon fa fa-times _5w_false">&nbsp;</i>
+                <i class="_5w_bicon fa fa-trash _5w_remove_object">&nbsp;</i>
+              </div>
+              <div class="_5w_bicon_bar action">
+              </div>
+            </div>
+            <div class="feed hidden">
+              <i class="_5w_bicon fa fa-arrow-up">&nbsp;</i>&nbsp;
+            </div>
+            <div class="related hidden">
+              <i class="_5w_bicon fa fa-arrow-up">&nbsp;</i>&nbsp;
+              <div class="_5w_bicon_bar r_action">
+                <i class="_5w_bicon fa fa-plus">&nbsp;</i>
+              </div>
+            </div>
+        </div>
+        <div class="_5w_obj_title"><img class="_5w_type_icon" src="img/1x1.png"/><div>loading...</div>
+          <ul class="tabbar"><li class="selected">info</li><li>feed</li><li>related</li></ul>
+        </div>
+        <div class="_5w_container info _5w_form">
+          <form>
+          </form>
+        </div>
+        <div class="_5w_container feed hidden">
+        </div>
+        <div class="_5w_container related hidden">
+          <ul></ul>
+        </div>
+      </div>
+      <div class="doc_lookup">
+        <div class="_5w_header">
+          <div class="_5w_search_box"><input type="input" name="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>&nbsp;<i class="fa fa-search fa-5"></i><i class="_5w_menu fa fa-times"></i></div>
+        </div>
+        <div class="_5w_container search">
+        </div>
+      </div>
+      <div class="date_picker">
+        <div class="_5w_header">
+          <i class="_5w_bicon fa fa-arrow-up">&nbsp;</i>&nbsp;<span></span>
+          <div class="_5w_bicon_bar">
+            <i class="_5w_bicon fa fa-check _5w_true">&nbsp;</i>
+            <i class="_5w_bicon fa fa-times _5w_false">&nbsp;</i>
+          </div>
+        </div>
+        <div class="_5w_container">
+          <div class="label">&nbsp;</div>
+          <div class="datetext">&nbsp;</div>
+          <div class="picker"></div>
+        </div>
+      </div>
+      <div class="pikaday">
+        <div class="_5w_header">
+          <i class="_5w_bicon fa fa-arrow-up">&nbsp;</i>&nbsp;<span></span>
+          <div class="_5w_bicon_bar">
+            <i class="_5w_bicon fa fa-check _5w_true">&nbsp;</i>
+            <i class="_5w_bicon fa fa-times _5w_false">&nbsp;</i>
+          </div>
+        </div>
+        <div class="_5w_container">
+          <div class="label"></div>
+          <div class="datetext"><input type="text" class="datepicker" name="datepicker" style="width: 100%;"></div>
+          <div class="picker" style="width: 260px; margin-left: auto; margin-right: auto; margin-top: 10px;"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label></label>
+        <div></div>
+      </div>
+      <div class="search_list">
+        <ul class="_5w_search_list">
+          <li class="message">search your documents</li>
+        </ul>
+        <div class="_5w_search_list_group_container"></div>
+      </div>
+      <div class="field_edit _5w_popup_form">
+        <form id="_5w_field_editor">
+          <h1><span></span><i class="_5w_close fa fa-times-circle"></i></h1>
+          <p><label><i class="_5w_scope scope_label"></i>Label</label><input class="prop" type="text" name="label"/></p>
+          <p><label><i class="_5w_scope scope_hidden"></i>Hide</label><input class="prop" type="checkbox" name="hidden"/></p>
+          <p><label><i class="_5w_scope scope_alwaysshow"></i>Always Show</label><input class="prop" type="checkbox" name="alwaysshow"/></p>
+          <p><label><i class="_5w_scope scope_includeinsearch"></i>Include in Search</label><input class="prop" type="checkbox" name="includeinsearch"/></p>
+          <p><label><i class="_5w_scope scope_readonly"></i>Read Only</label><input class="prop" type="checkbox" name="readonly"/></p>
+          <p><label><i class="_5w_scope scope_required"></i>Required</label><input class="prop" type="checkbox" name="required"/></p>
+          <p><label><i class="_5w_scope scope_type"></i>Type</label>
+            <select class="prop" name="type">
+              <option>string</option>
+              <option>markdown</option>
+              <option>choice</option>
+              <option>boolean</option>
+              <option>currency</option>
+              <option>percent</option>
+              <option>datetime</option>
+              <option>date</option>
+              <option>email</option>
+              <option>phone</option>
+              <option>mobile</option>
+              <option>fax</option>
+              <option>physical_address</option>
+              <option>mailing_address</option>
+              <option>url</option>
+              <option>document_link</option>
+              <option>document_link_list</option>
+              <option>attachments</option>
+            </select>
+          </p>
+          <p class="choices_field hidden"><label><i class="_5w_scope scope_choices"></i>Choices</label><input class="prop" name="choices" placeholder="item 1, item 2, ..."/></p>
+          <p class="document_link_filter_field hidden"><label><i class="_5w_scope scope_document_link_filter"></i>Document Link Filter</label><input class="prop" name="document_link_filter" placeholder="Account, Contact, ..."/></p>
+          <p><button type="submit" name="save">save</button><button type="button" name="cancel">cancel</button></p>
+        </form>
+      </div>
+      <div class="viewer_menu">
+        <div class="flyout_menu">
+          <i class="fa fa-minus">&nbsp</i>
+          <ul></ul>
+        </div>
+      </div>
+      <div class="simple_modal">
+        <div class="simple_modal_body">
+          <div class="simple_modal_overlay"></div>
+          <div class="simple_modal_content"></div>
+        </div>
+      </div>
+      <div class="attach_image _5w_popup_form _5w_view_attach">
+        <div class="preview">
+          <img src="img/photo-placeholder.png"/>
+          <progress class="hidden"></progress>
+        </div>
+        <div class="control">
+          <p>
+              <i class="fa fa-camera _5w_bicon">&nbsp;</i>&nbsp;
+              <i class="fa fa-picture-o _5w_bicon">&nbsp;</i>
+          </p>
+          <p>
+            <button type="button" class="attach" disabled="disabled">attach</button>
+            <button type="button">cancel</button>
+          </p>
+        </div>
+      </div>
+      <div class="attach_document _5w_popup_form _5w_view_attach">
+        <div class="preview">
+          <input type="file" name="file"/>
+          <progress class="hidden"></progress>
+        </div>
+        <div class="control">
+          <p>
+            <button type="button" class="attach" disabled="disabled">attach</button>
+            <button type="button">cancel</button>
+          </p>
+        </div>
+      </div>
+      <div class="prototype_list">
+        <div class="_5w_header">
+          <i class="_5w_bicon fa fa-arrow-up">&nbsp;</i>&nbsp;<span>document prototypes</span>
+        </div>
+        <div class="_5w_container">
+          <fw-ordered-list pattern="^[A-Z]\w+$">
+          </fw-ordered-list>
+        </div>
+      </div>
+      <div class="prototype_editor">
+        <div class="_5w_header">
+          <i class="_5w_bicon fa fa-arrow-up">&nbsp;</i>&nbsp;<span></span>
+          <div class="_5w_bicon_bar editing hidden">
+            <i class="_5w_bicon fa fa-check _5w_true">&nbsp;</i>
+            <i class="_5w_bicon fa fa-times _5w_false">&nbsp;</i>
+          </div>
+          <ul class="tabbar">
+            <li class="selected">fields</li>
+            <li>allow create</li>
+            <li>properties</li>
+          </ul>
+        </div>
+        <div class="_5w_container fields">
+          <fw-ordered-list pattern="^[A-Z]\w+$">
+          </fw-ordered-list>
+        </div>
+        <div class="_5w_container allow_create hidden">
+          <fw-ordered-list pattern="^[A-Z]\w+$">
+          </fw-ordered-list>
+        </div>
+        <div class="_5w_container _5w_field_editor properties hidden">
+          <form>
+            <p>
+              <label>sort type</label>&nbsp;
+              <select name="sort_type">
+                <option value="byKey">by key</option>
+                <option value="displayName">display name</option>
+                <option value="mostRecent">most recent</option>
+              </select>
+            </p>
+            <p><label>icon URL</label>&nbsp;<img name="icon_preview"/>&nbsp;<input type="text" name="icon_url"/>&nbsp;
+              <input type="file" name="icon_file"/></p>
+            <p><label>display expression</label>&nbsp;<input type="text" name="display_expression"/></p>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
 

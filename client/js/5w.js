@@ -2710,7 +2710,7 @@
   $5W.prototype._init = function () {
     var _this = this;
 
-    _this.html = $('#5w_templates')[0].import;
+    _this.html = $('#5w_templates')[0];
 
     var op = $5WObjectType.refresh();
 
