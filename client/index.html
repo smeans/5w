@@ -108,6 +108,10 @@
     });
 
     linkObserver.observe(head, {childList: true});
+
+    window.addEventListener('DOMContentLoaded', function (e) {
+      document.querySelectorAll('ph-components').forEach(loadComponents);
+    });
   }
   </script>
 
