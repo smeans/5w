@@ -796,7 +796,7 @@
     var ab = $('._5w_header ._5w_bicon_bar.action', this.el);
     var sd = [['_5w_field_type_phone','fa-phone']
         , ['_5w_field_type_mobile', 'fa-mobile']
-        , ['_5w_field_type_mobile', 'fa-comment-o']
+        , ['_5w_field_type_mobile', 'fa-comment-alt']
         , ['_5w_field_type_email', 'fa-envelope']
         , ['_5w_field_type_physical_address', 'fa-map-o']
       ];
@@ -1505,7 +1505,7 @@
       case 'mobile': {
         ea.phone = o[this.fieldName];
 
-        if ($(e.target).hasClass('fa-comment-o')) {
+        if ($(e.target).hasClass('fa-comment-alt')) {
           en = '5w_launch_sms';
           window.open('sms:' + encodeURI(o[this.fieldName]), '_system');
         } else {
