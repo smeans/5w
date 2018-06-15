@@ -326,6 +326,10 @@ div._5w_view_field {
   user-select: text;
 }
 
+._5w_view_field._5w_field_type_currency div:before {
+  content: "$";
+}
+
 ._5w_editing [contenteditable=true] {
   background-color: #ccc;
   width:80%;

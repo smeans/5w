@@ -1228,7 +1228,7 @@
       } break;
 
       case 'currency': {
-        $('div', this.el).text(accounting.formatMoney(o[fieldName]));
+        $('div', this.el).text(Number.parseFloat(o[fieldName]).toFixed(2));
       } break;
 
       case 'datetime': {
@@ -1326,7 +1326,7 @@
           $('div', this.el).text(docToNum(o[this.fieldName]));
         } else {
           $('div', this.el).attr('contenteditable', false);
-          $('div', this.el).text(accounting.formatMoney(o[this.fieldName]));
+          $('div', this.el).text(Number.parseFloat(o[this.fieldName]).toFixed(2));
         }
       } break;
 
