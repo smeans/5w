@@ -1641,12 +1641,12 @@
     }
     $(this.el).empty();
     $(this.el).removeClass();
-    if (!id) {
+    if (!id && findString('lookup', links) < 0) {
       return;
     }
 
     $(this.el).addClass('_5w_type_' + $5w.typeFromId(id));
-    var display = $5w.getDisplayName(id);
+    var display = $5w.getDisplayName(id) || '';
 
     var html = '<img src="img/1x1.png"/><span class="_5w_fixup" data-fixup="5w_fixup_docref" data-id="' + id + '">' + (display ? display : id) + '</span>';
     if (findString('over', links) >= 0) {
@@ -2862,7 +2862,7 @@
   };
 
   $5W.prototype.typeFromId = function (id) {
-    var i = id.lastIndexOf('_');
+    var i = id && id.lastIndexOf('_');
 
     return i > 0 ? id.substr(0, i) : null;
   };
