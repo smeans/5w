@@ -323,6 +323,10 @@ div._5w_view_field {
 
 ._5w_view_field div {
   margin: 0px 0px 0px 1em;
+   -webkit-user-select: text;
+   -khtml-user-select: text;
+   -moz-user-select: text;
+   -o-user-select: text;
   user-select: text;
 }
 
