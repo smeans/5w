@@ -918,3 +918,18 @@ button:focus{
   font-size: 18px;
   padding:0 10px;
 }
+
+table.snarkdown {
+  border-collapse: collapse;
+  border: 2pt solid #000;
+  padding: 2pt;
+}
+
+table.snarkdown th {
+  background-color: #000;
+  color: #fff;
+}
+
+table.snarkdown td {
+  border: 2pt solid #000;
+}

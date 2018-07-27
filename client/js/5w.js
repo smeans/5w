@@ -1277,6 +1277,12 @@
         }
       } break;
 
+      case 'markdown': {
+        if (o[fieldName]) {
+          $('div', this.el).html(snarkdown(o[fieldName]));
+        }
+      } break;
+
       default: {
         $('div', this.el).text(docToString(o[fieldName]));
       } break;

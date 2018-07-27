@@ -93,7 +93,7 @@ function docToNum(v) {
 }
 
 function contentToString(el) {
-  return el.innerText.trim();
+  return el.innerText;
 }
 
 function jsonToXML(o) {
@@ -115,10 +115,6 @@ function jsonToXML(o) {
 
 function nullForEmpty(o) {
   return isString(o) ? (!!o ? o : null) : o;
-}
-
-function contentToString(el) {
-  return el.innerText.trim();
 }
 
 function titleCaseToHuman(s) {
