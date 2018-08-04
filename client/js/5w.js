@@ -3017,7 +3017,8 @@
   };
 
   $5W.prototype.getDisplayName = function (id) {
-    return id in this._namecache ? this._namecache[id] : null;
+    return id == 'undefined' ? '(empty)'
+        : (id in this._namecache ? this._namecache[id] : null);
   };
 
   $5W.prototype.getObjectUrl = function (id) {

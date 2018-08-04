@@ -21,7 +21,13 @@ function encodeAttr(str) {
 }
 
 function parse(md, prevLinks) {
-    var tokenizer = /((?:^|\n+)(?:\n---+|\* \*(?: \*)+)\n)|(?:^``` *(\w*)\n([\s\S]*?)\n```$)|((?:(?:^|\n+)(?:\t|  {2,}).+)+\n*)|((?:(?:^|\n)([>*+-]|\d+\.)\s+.*)+)|(?:\!\[([^\]]*?)\]\(([^\)]+?)\))|(\[)|(\](?:\(([^\)]+?)\))?)|(?:(?:^|\n+)([^\s].*)\n(\-{3,}|={3,})(?:\n+|$))|(?:(?:^|\n+)(#{1,6})\s*(.+)(?:\n+|$))|(?:`([^`].*?)`)|(  \n\n*|\n{2,}|__|\*\*|[_*]|~~)|((?:^\|[^\n]+\n)+)/gm, context = [], out = '', links = prevLinks || {}, last = 0, chunk, prev, token, inner, t;
+    var tokenizer = /((?:^|\n+)(?:\n---+|\* \*(?: \*)+)\n)|(?:^``` *(\w*)\n([\s\S]*?)\n```$)|((?:(?:^|\n+)(?:\t|  {2,}).+)+\n*)|((?:(?:^|\n)([>*+-]|\d+\.)\s+.*)+)|(?:\!\[([^\]]*?)\]\(([^\)]+?)\))|(\[)|(\](?:\(([^\)]+?)\))?)|(?:(?:^|\n+)([^\s].*)\n(\-{3,}|={3,})(?:\n+|$))|(?:(?:^|\n+)(#{1,6})\s*(.+)(?:\n+|$))|(?:`([^`].*?)`)|(  \n\n*|\n{2,}|__|\*\*|[_*]|~~)|((?:^\|[^\n]+\n)+)/gm;
+		var context = [];
+		var out = '';
+		var links = prevLinks || {};
+		var last = 0;
+		var chunk, prev, token, inner, t;
+
     function tag(token) {
         var desc = TAGS[token.replace(/\*/g, '_')[1] || ''], end = context[context.length - 1] == token;
         if (!desc)
@@ -90,9 +96,9 @@ function parse(md, prevLinks) {
                 token[5] = token[5].replace(/^\d+/gm, '');
             }
             inner = parse(outdent(token[5].replace(/^\s*[>*+.-]/gm, '')));
-            if (t === '>')
-                { t = 'blockquote'; }
-             else {
+            if (t === '>') {
+              t = 'blockquote';
+            } else {
                 t = t.match(/\./) ? 'ol' : 'ul';
                 inner = inner.replace(/^(.*)(\n|$)/gm, '<li>$1</li>');
             }
@@ -112,7 +118,6 @@ function parse(md, prevLinks) {
         } else if (token[17] || token[1]) {
             chunk = tag(token[17] || '--');
         } else if (token[18]) {
-            console.log('chunk', chunk, 'prev', prev);
             chunk = renderTable(token[18]);
         }
         out += prev;

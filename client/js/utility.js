@@ -93,7 +93,7 @@ function docToNum(v) {
 }
 
 function contentToString(el) {
-  return el.innerText + '\n';
+  return el.innerText;
 }
 
 function jsonToXML(o) {
