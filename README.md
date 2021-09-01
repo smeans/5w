@@ -79,6 +79,7 @@ The 5w library encapsulates HTML markup and behavior in a series of _views_. The
 * **browser** - This provides a search interface which supports filtering all of the documents in the CouchDB database and presenting a list which the user can click on.
 * **viewer** - This presents an interface that allows viewing and editing a specific document from the CouchDB database.
 * **field_edit** - This displays an interface that allows an administrator to edit the metadata for a specific field type.
+
 The widget-type views are:
 * **doc_lookup** - This is an input view that allows the user to select a document from the database, generally used to populate a `document_link` field.
 * **date_picker** - Allows the user to choose a date or date/time.
